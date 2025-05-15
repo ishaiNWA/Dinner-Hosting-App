@@ -4,7 +4,8 @@
   "description": "This app connects hosts willing to open their homes for dinner with soldiers on vacation who lack family support",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+     "dev": "nodemon app.js"
   },
   "author": "Ishai Zilberman",
   "license": "ISC",

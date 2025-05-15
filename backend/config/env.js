@@ -1,4 +1,5 @@
 const _ = require("lodash");
+require('dotenv').config();
 
 const MANDATORY_VARS = ["JWT_SECRET_KEY"];
 
@@ -21,9 +22,11 @@ let env= {};
   env.PORT = process.env.PORT || "5000",
     // Mongo related vars.
   env.MONGODB_ADDRESSES = process.env.MONGODB_ADDRESSES || "localhost:27017";
+
+  console.log(`env object initiated ${JSON.stringify(env)}`)
 }
 
 // one time script initiation
-    init();
+  init();
 
 module.exports = env;
