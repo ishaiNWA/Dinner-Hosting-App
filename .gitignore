@@ -1,0 +1,17 @@
+# Node
+node_modules/
+npm-debug.log
+.env
+
+# React Native
+.expo/
+dist/
+web-build/
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+.DS_Store
+*.log
