@@ -1,4 +1,6 @@
 # Dinner Hosting App for Soldiers
+ 
+README 0.1
 
 A mobile application that connects people willing to host dinner events with soldiers on vacation who lack family support.
 
@@ -17,9 +19,6 @@ This platform facilitates meaningful social connections through shared dinner ev
 - Search for dinner events based on location and preferences
 - Chat with potential hosts
 - View available dinners and details
-
-Dinner-Hosting-App 
-README 0.1
 
 ### For Managers
 - Verify and authorize users
