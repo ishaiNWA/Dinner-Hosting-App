@@ -4,7 +4,6 @@
 
 ### Core Application Files
 - [ ] `app.js` - Main application entry point
-- [ ] `server.js` - Server configuration and startup
 - [ ] `.env` - Environment variables file
 - [ ] .gitignore 
 ### Infrastructure
