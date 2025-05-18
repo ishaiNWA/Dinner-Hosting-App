@@ -1,11 +1,16 @@
 const env = require ("./config/env");
 const logger = require("./utils/logger");
 const express = require("express");
+const {ErrorResponse} = require("./utils/common/errors")
 const configDb = require("./config/mongodb")
 const app = express();
 
 
 
+// 404 handler - 
+app.use((req, res, next) => {
+  next(new ErrorResponse('Route not found', 404));
+});
 
 configDb.
 connectToDb().then(()=>
