@@ -1,11 +1,16 @@
 const env = require ("./config/env");
 const logger = require("./utils/logger");
 const express = require("express");
+const configDb = require("./config/mongodb")
 const app = express();
 
 
-let server;
 
+
+configDb.
+connectToDb().then(()=>
+  {
+let server;
   server = app.listen(env.PORT, () => {
     logger.info(`App listening on port ${env.PORT}!`);
 });
@@ -30,3 +35,7 @@ let server;
         });
       });
     });
+}
+
+)
+

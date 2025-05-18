@@ -1,7 +1,7 @@
 const _ = require("lodash");
 require('dotenv').config();
 
-const MANDATORY_VARS = ["JWT_SECRET_KEY"];
+const MANDATORY_VARS = ["JWT_SECRET_KEY" , "MONGODB_URI"];
 
 let env= {};
 
@@ -22,6 +22,9 @@ let env= {};
   env.PORT = process.env.PORT || "5000",
     // Mongo related vars.
   env.MONGODB_ADDRESSES = process.env.MONGODB_ADDRESSES || "localhost:27017";
+  env.MONGODB_URI = process.env.MONGODB_URI;
+  env.MONGODB_DATABASE_NAME = process.env.MONGODB_DATABASE_NAME || 'dinner_app';
+  
 
   console.log(`env object initiated ${JSON.stringify(env)}`)
 }
