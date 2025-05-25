@@ -1,5 +1,5 @@
 const logger = require("../utils/logger")
-const {ErrorResponse} = require("../utils/common/errors")
+const {ErrorResponse} = require("../common/errors")
 
 const DUPLICATE_KEY_ERROR_CODE = 11000;
 

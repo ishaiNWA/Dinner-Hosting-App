@@ -11,12 +11,14 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.6.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mongoose": "^8.14.3",
+    "node-geocoder": "^4.4.1",
     "winston": "^3.17.0"
   },
   "devDependencies": {
