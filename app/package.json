@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "app",
   "version": "1.0.0",
   "description": "This app connects hosts willing to open their homes for dinner with soldiers on vacation who lack family support",
   "main": "index.js",
