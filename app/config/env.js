@@ -1,7 +1,7 @@
 const _ = require("lodash");
 require('dotenv').config();
 
-const MANDATORY_VARS = ["JWT_SECRET_KEY" , "MONGODB_URI", "GEOCODER_API_KEY", "CLOUDINARY_API_SECRET"];
+const MANDATORY_VARS = ["JWT_SECRET_KEY" , "MONGODB_URI", "GEOCODER_API_KEY", "CLOUDINARY_API_SECRET", "GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET"];
 
 let env= {};
 
@@ -24,7 +24,14 @@ let env= {};
   env.MONGODB_ADDRESSES = process.env.MONGODB_ADDRESSES || "localhost:27017";
   env.MONGODB_URI = process.env.MONGODB_URI;
   env.MONGODB_DATABASE_NAME = process.env.MONGODB_DATABASE_NAME || 'dinner_app';
-  
+
+//GOOGLE_OAUTH related vars
+
+env.GOOGLE_OAUTH_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID;
+env.GOOGLE_OAUTH_CLIENT_SECRET = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+env.GOOGLE_OAUTH_CALLBACK_URL = process.env.GOOGLE_OAUTH_CALLBACK_URL || `http://localhost:${env.PORT}/api/auth/google/callback`;
+
+
 //Geo Coder related vars
 env.GEOCODER_PROVIDER = process.env.GEOCODER_PROVIDER || 'opencage'
 env.GEOCODER_API_KEY= process.env.GEOCODER_API_KEY;
