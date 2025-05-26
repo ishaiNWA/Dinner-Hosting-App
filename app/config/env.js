@@ -1,7 +1,7 @@
 const _ = require("lodash");
 require('dotenv').config();
 
-const MANDATORY_VARS = ["JWT_SECRET_KEY" , "MONGODB_URI", "GEOCODER_API_KEY", "CLOUDINARY_API_SECRET", "GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET"];
+const MANDATORY_VARS = ["JWT_SECRET_KEY" ,"LOGIN_SESSION_SECRET", "MONGODB_URI", "GEOCODER_API_KEY", "CLOUDINARY_API_SECRET", "GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET"];
 
 let env= {};
 
@@ -17,7 +17,8 @@ let env= {};
   }
 
   env.JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
-
+  env.LOGIN_SESSION_SECRET = process.env.LOGIN_SESSION_SECRET;
+  
   //server related vars
   env.PORT = process.env.PORT || "5000",
     // Mongo related vars.
@@ -40,6 +41,8 @@ env.GEOCODER_API_KEY= process.env.GEOCODER_API_KEY;
 env.CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET
 env.CLOUDINARY_KEY_NAME = process.env.CLOUDINARY_KEY_NAME || "Dinner-Host-Cloudinary"
 env.CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "421113661632676"
+
+env.NODE_ENV = 'dev';
 
   console.log(`env object initiated ${JSON.stringify(env)}`)
 }

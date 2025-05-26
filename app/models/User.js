@@ -21,10 +21,10 @@ const UserSchema = new Schema({
     trim: true,
     lowercase: true,
   },
-  hashedPassword: {
-    type: String,
-    required: true,
-  },
+  isRegistrationComplete :{
+    type : Boolean,
+    default : false,
+  }
 }, options);
 
 const ManagerSchema = new Schema({

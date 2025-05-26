@@ -4,7 +4,37 @@ const express = require("express");
 const {ErrorResponse} = require("./common/errors")
 const configDb = require("./config/mongodb")
 const app = express();
+const morgan = require('morgan');     
+const cookieParser = require('cookie-parser'); 
+const session = require('express-session');
+const passport = require('passport');
+require('./services/passport-auth-service'); //configures passport strategies
+const authRoute = require("./routes/auth-route"); 
+         
 
+
+app.use(morgan('dev'));  // HTTP request logger middleware
+app.use(cookieParser());// parse cookies from the HTTP headers
+app.use(express.json()); //parse incoming JSON payloads (application/json)
+app.use(express.urlencoded({ extended: true })); //parse URL-encoded data (form submissions)
+
+
+
+
+app.use(session({
+  secret: env.LOGIN_SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: env.NODE_ENV === 'production',
+    maxAge: 10 * 60 * 1000, // 10 minutes - just for OAuth flow
+    sameSite: 'lax'
+  }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use("/api/auth", authRoute); 
 
 // 404 handler - 
 app.use((req, res, next) => {
