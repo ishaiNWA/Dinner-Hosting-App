@@ -2,6 +2,7 @@ const { Schema, model } = require("mongoose")
 const logger = require("../utils/logger");
 const geocoderService = require("../services/geocoder-service")
 const { ErrorResponse } = require("../common/errors");
+const dietaryRestrictionsArray = require("../common/dietary-restrictions");
 
 const options = { discriminatorKey: 'role', collection: 'users' };
 
@@ -84,6 +85,15 @@ const GuestSchema = new Schema({
   },
   //attaching contact details fields to GuestSchema
   ...contactDetailsFields,
+  dietaryRestrictions: {
+    type: [String],
+    enum: dietaryRestrictionsArray,
+    required: true,
+  },
+  allergies: {
+    type: String,
+    default: "none",
+  }
 });
 
 // registerPreSaveGeocodingMiddleware = (schema) => {
