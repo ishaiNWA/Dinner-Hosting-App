@@ -27,33 +27,39 @@ const UserSchema = new Schema({
   }
 }, options);
 
-const ManagerSchema = new Schema({
-  // Manager-specific fields here
-});
+// const ManagerSchema = new Schema({
+//   // Manager-specific fields here
+// });
 
-// Define the location fields as a reusable object
-const locationSchemaFields = {
+// Define shared contact details fields
+const contactDetailsFields = {
+  phoneNumber: {
+    type: String,
+    required: [true, "Please add a phone number"],
+    unique: true,
+  },
   address: {
     type: String,
     required: [true, "Please add an address"],
   },
-  location: {
-    // GeoJSON Point
-    type: {
-      type: String,
-      enum: ["Point"],
-    },
-    coordinates: {
-      type: [Number],
-      index: "2dsphere",
-    },
-    formattedAddress: String,
-    street: String,
-    city: String,
-    state: String,
-    zipcode: String,
-    country: String,
-  }
+  // ,
+  // location: {
+  //   // GeoJSON Point
+  //   type: {
+  //     type: String,
+  //     enum: ["Point"],
+  //   },
+  //   coordinates: {
+  //     type: [Number],
+  //     index: "2dsphere",
+  //   },
+  //   formattedAddress: String,
+  //   street: String,
+  //   city: String,
+  //   state: String,
+  //   zipcode: String,
+  //   country: String,
+  // }
 };
 
 const HostSchema = new Schema({
@@ -67,8 +73,8 @@ const HostSchema = new Schema({
       ref: 'DinnerEvent'
     }
   ],
-  //attaching locationSchemaFields to HostSchema
-  ...locationSchemaFields,
+  //attaching contact details fields to HostSchema
+  ...contactDetailsFields,
 });
 
 const GuestSchema = new Schema({
@@ -76,51 +82,51 @@ const GuestSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  //attaching locationSchemaFields to GuestSchema
-  ...locationSchemaFields,
+  //attaching contact details fields to GuestSchema
+  ...contactDetailsFields,
 });
 
-registerPreSaveGeocodingMiddleware = (schema) => {
-  schema.pre("save", async function(next) {
-    if (this.address) {
-        const locations = await geocoderService.getLocationObject(this.address);
-        const locationObj = locations[0]; // Gets the first item from the array
+// registerPreSaveGeocodingMiddleware = (schema) => {
+//   schema.pre("save", async function(next) {
+//     if (this.address) {
+//         const locations = await geocoderService.getLocationObject(this.address);
+//         const locationObj = locations[0]; // Gets the first item from the array
         
-        if (!locationObj || locationObj.countryCode !== "IL") {
-          logger.error('Address must be located in Israel');
-          return next(new ErrorResponse('Address must be located in Israel', 400));
-        }
+//         if (!locationObj || locationObj.countryCode !== "IL") {
+//           logger.error('Address must be located in Israel');
+//           return next(new ErrorResponse('Address must be located in Israel', 400));
+//         }
         
-        this.location = {
-          type: "Point",
-          coordinates: [locationObj.longitude, locationObj.latitude],
-          formattedAddress: locationObj.formattedAddress,
-          street: locationObj.streetName,
-          city: locationObj.city,
-          state: locationObj.stateCode,
-          zipcode: locationObj.zipcode,
-          country: locationObj.countryCode,
-        };
+//         this.location = {
+//           type: "Point",
+//           coordinates: [locationObj.longitude, locationObj.latitude],
+//           formattedAddress: locationObj.formattedAddress,
+//           street: locationObj.streetName,
+//           city: locationObj.city,
+//           state: locationObj.stateCode,
+//           zipcode: locationObj.zipcode,
+//           country: locationObj.countryCode,
+//         };
         
-        // Do not save address in DB
-        this.address = undefined;
-    }
-    next();
-  });
-};
+//         // Do not save address in DB
+//         this.address = undefined;
+//     }
+//     next();
+//   });
+// };
 
-registerPreSaveGeocodingMiddleware(HostSchema);
-registerPreSaveGeocodingMiddleware(GuestSchema);
+// registerPreSaveGeocodingMiddleware(HostSchema);
+// registerPreSaveGeocodingMiddleware(GuestSchema);
 
 // Create and export the models
 const User = model('User', UserSchema);
 const Host = User.discriminator('HOST', HostSchema);
 const Guest = User.discriminator('GUEST', GuestSchema);
-const Manager = User.discriminator('MANAGER', ManagerSchema);
+// const Manager = User.discriminator('MANAGER', ManagerSchema);
 
 module.exports = {
   User,
   Host, 
   Guest,
-  Manager
+  // Manager
 };
