@@ -1,5 +1,4 @@
-
-const roles = Object.freeze({
+const userRoles = Object.freeze({
     HOST : 'HOST',
     GUEST : 'GUEST',
     MANAGER : 'MANAGER',
@@ -9,5 +8,5 @@ const roles = Object.freeze({
  
 
 module.exports = {
-    roles,
+    userRoles,
 }
