@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const logger = require('../../utils/logger');
 const env = require("../../config/env")
+const ErrorResponse = require("../../common/errors");
 
 /*****************************************************************************/
 
@@ -17,7 +18,7 @@ const protect = async (req, res, next) => {
 
   if (!token) {
     logger.error('No token provided');
-    return res.status(401).json({ message: 'Unauthorized' });
+    return next(new ErrorResponse(401, 'Unauthorized'));
   }
 
   try {
@@ -26,7 +27,7 @@ const protect = async (req, res, next) => {
     next();
   } catch(error) {
     logger.error('Invalid token');
-    return res.status(401).json({ message: 'Invalid token' });
+    return next(new ErrorResponse(401, 'Invalid token'));
   }
 };
 
