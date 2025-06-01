@@ -23,7 +23,7 @@ const protect = async (req, res, next) => {
 
   try {
     const { id, email, role } = jwt.verify(token, env.JWT_SECRET_KEY);
-    req.user = { id, email, role };
+    req.token = { id, email, role };
     next();
   } catch(error) {
     logger.error('Invalid token');

@@ -4,7 +4,7 @@
   "description": "This app connects hosts willing to open their homes for dinner with soldiers on vacation who lack family support",
   "main": "index.js",
   "scripts": {
-    "test": "test",
+    "test": "jest --detectOpenHandles",
     "dev": "nodemon app.js"
   },
   "author": "Ishai Zilberman",
@@ -28,6 +28,8 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1"
   }
 }

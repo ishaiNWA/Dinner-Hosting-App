@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose")
 const logger = require("../utils/logger");
 const geocoderService = require("../services/geocoder-service")
 const { ErrorResponse } = require("../common/errors");
-const dietaryRestrictionsArray = require("../common/dietary-restrictions");
+const {dietaryRestrictionsArray} = require("../common/dietary-restrictions");
 
 const options = { discriminatorKey: 'role', collection: 'users' };
 
@@ -33,7 +33,7 @@ const UserSchema = new Schema({
 // });
 
 // Define shared contact details fields
-const contactDetailsFields = {
+const contactDetails = {
   phoneNumber: {
     type: String,
     required: [true, "Please add a phone number"],
@@ -75,7 +75,7 @@ const HostSchema = new Schema({
     }
   ],
   //attaching contact details fields to HostSchema
-  ...contactDetailsFields,
+  ...contactDetails,
 });
 
 const GuestSchema = new Schema({
@@ -84,10 +84,13 @@ const GuestSchema = new Schema({
     default: false,
   },
   //attaching contact details fields to GuestSchema
-  ...contactDetailsFields,
+  ...contactDetails,
   dietaryRestrictions: {
     type: [String],
-    enum: dietaryRestrictionsArray,
+    enum: {
+      values: dietaryRestrictionsArray,
+      message: '{VALUE} is not a valid dietary restriction'
+    },
     required: true,
   },
   allergies: {
@@ -130,8 +133,8 @@ const GuestSchema = new Schema({
 
 // Create and export the models
 const User = model('User', UserSchema);
-const Host = User.discriminator('HOST', HostSchema);
-const Guest = User.discriminator('GUEST', GuestSchema);
+const Host = User.discriminator('Host', HostSchema);
+const Guest = User.discriminator('Guest', GuestSchema);
 // const Manager = User.discriminator('MANAGER', ManagerSchema);
 
 module.exports = {

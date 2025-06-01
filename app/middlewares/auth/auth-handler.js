@@ -1,12 +1,12 @@
 const passport = require('passport');
-const jwt = require("../utils/jwt");
-const env = require("../config/env")
+const jwt = require("../../utils/jwt");
+const env = require("../../config/env");
 const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
 const ONE_DAY_IN_MS = ONE_DAY_IN_SECONDS * 1000;
 const COMPLETE_REGISTRATION_URL = 'https://example.com/complete-registration';
 const DASHBOARD_URL = 'https://example.com/dashboard';
 const ERROR_URL = (err) => `https://example.com/auth-error?reason=${encodeURIComponent(err)}`;
-const logger = require("../utils/logger");
+const logger = require("../../utils/logger");
 
 async function googleAuthHandler(req, res, next) {
 

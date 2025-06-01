@@ -44,7 +44,7 @@ env.CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "421113661632676"
 
 env.NODE_ENV = 'dev';
 
-  console.log(`env object initiated ${JSON.stringify(env)}`)
+ // console.log(`env object initiated ${JSON.stringify(env)}`)
 }
 
 // one time script initiation

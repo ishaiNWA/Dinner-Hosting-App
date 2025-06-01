@@ -3,29 +3,35 @@ const logger = require("../../utils/logger");
 const { ErrorResponse } = require("../../common/errors");
 
 /**
- * Validates user registration data using a flat structure for MVP simplicity.
- * Note: If the schema grows significantly, consider refactoring to nested structure:
+ * Validates user registration data using a nested structure for better organization:
  * {
  *   role: "guest",
- *   contactInfo: { phone, address },
- *   guestDetails: { dietaryRestrictions, allergies }
+ *   roleDetails: {
+ *     contactDetails: { phoneNumber, address },
+ *     dietaryRestrictions: [...],  // for guests
+ *     allergies: "none"            // for guests
+ *   }
  * }
  */
 const validateUser = (req, res, next) => {
     try {
-        const {error} = userSchema.validate(req.body);
+        const {userDataForm}= req.body;
+        // Validate basic structure and role
+        const {error} = userSchema.validate(userDataForm);
         if(error){
             logger.error(`User Validation error: ${error}`);
             return next(new ErrorResponse(400, error.message));
         }
-        if(req.body.role === "guest"){
-            const {error} = guestSchema.validate(req.body);
+
+        // Validate role-specific data
+        if(userDataForm.role === "guest"){
+            const {error} = guestSchema.validate(userDataForm.roleDetails);
             if(error){
                 logger.error(`Guest Validation error: ${error}`);
                 return next(new ErrorResponse(400, error.message));
-            }
-        } else if(req.body.role === "host"){
-            const {error} = hostSchema.validate(req.body);
+            }   
+        } else if(user.role === "host"){
+            const {error} = hostSchema.validate(user.roleDetails);
             if(error){
                 logger.error(`Host Validation error: ${error}`);
                 return next(new ErrorResponse(400, error.message));

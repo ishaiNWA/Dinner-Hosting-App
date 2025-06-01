@@ -6,16 +6,18 @@ const { sleep } = require("../utils/helpers");
 const MAX_ATTEMPTS = 3;
 const INITIAL_WAITING_TIME_IN_MS = 5000;
 
-async function connectToDb() {
-  await mongoose.connect(
-    `${env.MONGODB_URI}/${env.MONGODB_DATABASE_NAME}?retryWrites=true&w=majority`,
+async function connectToDb(mongoUrIArg = null) {
+
+  const connectionString = mongoUrIArg ? mongoUrIArg : `${env.MONGODB_URI}/${env.MONGODB_DATABASE_NAME}?retryWrites=true&w=majority`
+  
+  return await mongoose.connect(
+    connectionString,
   );
 }
 
 // Attach connection listeners once
 mongoose.connection.on("connected", () => {
-  logger.info(`Successfully connected to "${env.MONGODB_DATABASE_NAME}" data base`);
-});
+ logger.info(`Successfully connected to "${mongoose.connection.name}" database`);});
 
 mongoose.connection.on("disconnected", async () => {
   logger.error(" MongoDB disconnected. Attempting to reconnect...");

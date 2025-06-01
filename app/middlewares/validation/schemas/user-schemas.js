@@ -3,10 +3,10 @@ const {userRoles} = require("../../../common/user-roles");
 const {dietaryRestrictionsArray} = require("../../../common/dietary-restrictions");
 const ISRAELI_PHONE_PATTERN = /^(\+?(972)|0)?([\-\s\.])?([23489]{1}[\-\s\.]?\d{3}[\-\s\.]?\d{4}|5\d{1}[\-\s\.]?\d{3}[\-\s\.]?\d{4})$/;
 
-// Shared contact info schema
-const contactInfoSchema = Joi.object({
+// Contact details schema
+const contactDetailsSchema = Joi.object({
     phoneNumber: Joi.string()
-        .pattern(ISRAELI_PHONE_PATTERN)
+    .pattern(ISRAELI_PHONE_PATTERN)
         .message("Invalid phone number")
         .required()
         .trim(),
@@ -21,11 +21,12 @@ const contactInfoSchema = Joi.object({
 // Base schema for all user types
 const userSchema = Joi.object({
     role: Joi.string().valid(...Object.values(userRoles)).required(),
-    contactInfo: contactInfoSchema.required()
+    roleDetails: Joi.object().required() // Will be validated by specific role schema
 });
 
-// Guest-specific details schema
-const guestDetailsSchema = Joi.object({
+// Guest registration schema
+const guestSchema = Joi.object({
+    contactDetails: contactDetailsSchema.required(),
     dietaryRestrictions: Joi.array()
         .items(Joi.string().valid(...dietaryRestrictionsArray))
         .required()
@@ -37,19 +38,10 @@ const guestDetailsSchema = Joi.object({
         .default('none')
 });
 
-// Complete guest registration schema
-const guestSchema = userSchema.keys({
-    guestDetails: guestDetailsSchema.required()
-});
-
-// Host-specific details schema
-const hostDetailsSchema = Joi.object({
-    // Add host-specific validations here when needed
-});
-
-// Complete host registration schema
-const hostSchema = userSchema.keys({
-    hostDetails: hostDetailsSchema.required()
+// Host registration schema
+const hostSchema = Joi.object({
+    contactDetails: contactDetailsSchema.required()
+    // Add more host-specific fields here as needed
 });
 
 module.exports = {

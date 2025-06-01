@@ -1,8 +1,8 @@
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const passport = require('passport');
-const { User } = require('../models/User'); 
 const env = require("../config/env");
 const logger = require("../utils/logger");
+const dbService = require('./db-service');
 
 passport.use(new GoogleStrategy({
   clientID: env.GOOGLE_OAUTH_CLIENT_ID,
@@ -16,15 +16,14 @@ async (accessToken, refreshToken, profile, done) => {
     logger.info(`Google OAuth: Received profile for ${googleData.email}`);
 
     // Check if user already exists
-    let user = await User.findOne({ email: googleData.email });
+    let user = await dbService.findUserByEmail(googleData.email);
 
     if (!user) {
-      user = await User.create({
+      user = await dbService.createUserByOauth({
         firstName: googleData.given_name,
         lastName: googleData.family_name,
         email: googleData.email,
-        authMethod: 'google',
-      });
+      })
       logger.info(`Google OAuth: New user created with ID ${user._id}`);
     } else {
       logger.info(`Google OAuth: Found existing user with ID ${user._id}`);
