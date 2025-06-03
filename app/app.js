@@ -39,16 +39,15 @@ app.use("/api/auth", authRoute);
 
 // 404 handler
 app.use((req, res, next) => {
-  next(new ErrorResponse("Route not found", 404));
+  next(new ErrorResponse(404, "Route not found"));
 });
 
 let server;
-let connection;
 
 async function startServer(mongoUrIArg = null) {
   try {
     console.log(`mongoUrIArg is ${mongoUrIArg}`)
-    connection = await configDb.connectToDb(mongoUrIArg);
+    await configDb.connectToDb(mongoUrIArg);
 
     server = app.listen(env.PORT, () => {
       logger.info(`App listening on port ${env.PORT}!`);
@@ -83,9 +82,6 @@ async function startServer(mongoUrIArg = null) {
    function getServer(){
     return server;
    }
-   function getConnection(){
-    return connection;
-   }
 
 if (require.main === module) {
     startServer();
@@ -95,6 +91,5 @@ if (require.main === module) {
     app,
     startServer,
     getServer,
-    getConnection
   };
 }

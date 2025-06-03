@@ -29,10 +29,10 @@ const completeProfile = async (req, res, next) => {
         logger.error(`Error in completeProfile: ${error}`);
         return next(new ErrorResponse(500, 'Internal server error while updating user'));
     }
-   
+    console.log(`newUpdatedUser is : ${JSON.stringify(newUpdatedUser, null, 2)}`);
     res.status(200).json({
         message: "User completed registration successfully",
-        data: newUpdatedUser
+        user: newUpdatedUser
     });
 }
 
@@ -45,15 +45,13 @@ const completeProfile = async (req, res, next) => {
 function standardizeUserData(userDataForm){
 
     const {roleDetails , ...restOfUserObject} = userDataForm;
-    const {genericContactDetails, ...roleSpecificDetails } = roleDetails;
-
+    const {contactDetails, ...restOfRoleDetails } = roleDetails;
 
     const newFormatObject = {
         ...restOfUserObject,
-        ...genericContactDetails,
-        ...roleSpecificDetails
+        ...contactDetails,
+        ...restOfRoleDetails
     }
-
     newFormatObject.isRegistrationComplete = true;
 
     return newFormatObject;

@@ -34,43 +34,52 @@ const loggingFormat = winston.format.combine(
     `${timestamp} ${level.toUpperCase()}: ${stack || message}`
 ))
 
-const logger = winston.createLogger({
-  levels,
-  format : loggingFormat,
-
-  transports:[
-
-    new winston.transports.Console({ 
+// Create different logger configurations for test and non-test environments
+const transports = process.env.NODE_ENV === 'test' ? [
+  // During tests, only log to console with all levels
+  new winston.transports.Console({ 
     level: 'debug',
     format: winston.format.combine(
-    winston.format.colorize(),
-    winston.format.printf(
+      winston.format.colorize(),
+      winston.format.simple(),
+      winston.format.printf(
         (info) => `${info.timestamp} ${info.level}: ${info.message}`
-        )
       )
-    }),
-
-    // General error log file
-    new winston.transports.File({ 
-      filename: path.join(__dirname, '../logs/error.log'), 
-      level: 'error' ,
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
+    )
+  })
+] : [
+  // Normal environment transports
+  new winston.transports.Console({ 
+    level: 'debug',
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.printf(
+        (info) => `${info.timestamp} ${info.level}: ${info.message}`
       )
-    }),
+    )
+  }),
+  new winston.transports.File({ 
+    filename: path.join(__dirname, '../logs/error.log'), 
+    level: 'error',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.json()
+    )
+  }),
+  new winston.transports.File({ 
+    filename: path.join(__dirname, '../logs/db-error.log'), 
+    level: 'dbError',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.json()
+    )
+  })
+];
 
-
-    // DB error specific log file
-    new winston.transports.File({ 
-      filename: path.join(__dirname, '../logs/db-error.log'), 
-      level: 'dbError',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      )
-    }),
-  ]
-})
+const logger = winston.createLogger({
+  levels,
+  format: loggingFormat,
+  transports
+});
 
 module.exports = logger;

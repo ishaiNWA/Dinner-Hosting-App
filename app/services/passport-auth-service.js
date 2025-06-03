@@ -9,7 +9,7 @@ passport.use(new GoogleStrategy({
   clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET,
   callbackURL: env.GOOGLE_OAUTH_CALLBACK_URL
 }, 
-async (accessToken, refreshToken, profile, done) => {
+async function strategyVerificationCallback(accessToken, refreshToken, profile, done){
   try {
     // Get user data from Google
     const googleData = profile._json;

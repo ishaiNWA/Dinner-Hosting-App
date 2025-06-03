@@ -1,6 +1,7 @@
 const { userSchema, guestSchema, hostSchema } = require("./schemas/user-schemas");      
 const logger = require("../../utils/logger");     
 const { ErrorResponse } = require("../../common/errors");
+const { userRoles } = require("../../common/user-roles");
 
 /**
  * Validates user registration data using a nested structure for better organization:
@@ -15,7 +16,11 @@ const { ErrorResponse } = require("../../common/errors");
  */
 const validateUser = (req, res, next) => {
     try {
-        const {userDataForm}= req.body;
+        if(! req.body.userDataForm){
+            return next(new ErrorResponse(400, "User data form is required"));
+        }
+        const userDataForm = req.body.userDataForm;
+       
         // Validate basic structure and role
         const {error} = userSchema.validate(userDataForm);
         if(error){
@@ -24,14 +29,14 @@ const validateUser = (req, res, next) => {
         }
 
         // Validate role-specific data
-        if(userDataForm.role === "guest"){
+        if(userDataForm.role === userRoles.GUEST){
             const {error} = guestSchema.validate(userDataForm.roleDetails);
             if(error){
                 logger.error(`Guest Validation error: ${error}`);
                 return next(new ErrorResponse(400, error.message));
             }   
-        } else if(user.role === "host"){
-            const {error} = hostSchema.validate(user.roleDetails);
+        } else if(userDataForm.role === userRoles.HOST){
+            const {error} = hostSchema.validate(userDataForm.roleDetails);
             if(error){
                 logger.error(`Host Validation error: ${error}`);
                 return next(new ErrorResponse(400, error.message));

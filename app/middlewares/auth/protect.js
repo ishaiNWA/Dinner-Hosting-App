@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const logger = require('../../utils/logger');
 const env = require("../../config/env")
-const ErrorResponse = require("../../common/errors");
+const {ErrorResponse} = require("../../common/errors");
 
 /*****************************************************************************/
 

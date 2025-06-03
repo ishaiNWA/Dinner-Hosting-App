@@ -1,7 +1,7 @@
 const userRoles = Object.freeze({
-    HOST : 'HOST',
-    GUEST : 'GUEST',
-    MANAGER : 'MANAGER',
+    HOST : 'Host',
+    GUEST : 'Guest',
+    MANAGER : 'Manager',
 });
 
 

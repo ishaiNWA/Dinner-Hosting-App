@@ -10,7 +10,7 @@ const logger = require("../../utils/logger");
 
 async function googleAuthHandler(req, res, next) {
 
-  const authenticator = passport.authenticate('google', async (err, user, info) => {
+  const authenticator = passport.authenticate('google', async function authenticationResultCallback (err, user, info){
     if (err) {
       logger.error(`Passport authentication error: ${err}`);
       return res.redirect(ERROR_URL(err));
@@ -41,6 +41,48 @@ async function googleAuthHandler(req, res, next) {
 
   authenticator(req, res, next);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = {
   googleAuthHandler,

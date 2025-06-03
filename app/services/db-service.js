@@ -1,36 +1,52 @@
 const {User, Guest, Host} = require("../models/User");
+const mongoose = require("mongoose");
 const {userRoles} = require("../common/user-roles");
 const logger = require("../utils/logger");
 
 
 
-async function updateUserByRole(userDocOId , role , userObjectForUpdate){
+async function updateUserByRole(userDocId , role , userObjectForUpdate){
 
     if(role != userRoles.GUEST && role != userRoles.HOST){
         throw new Error("no valid role is defined for the user object")
     }
-    let roleSchema = (role === userRoles.GUEST) ? Guest : Host ;
+    let roleModel = (role === userRoles.GUEST) ? Guest : Host ;
 
-    return await updateDoc(roleSchema ,userDocOId , userObjectForUpdate);
+        const session = await mongoose.startSession();
+        let newCompleteUserDoc;
+        try{
+        session.startTransaction();
+        const removedUserDoc = await deleteDocById(User , userDocId , session);
+         let uniteObject = {...removedUserDoc.toObject(), ...userObjectForUpdate};
+        newCompleteUserDoc = await createDoc(roleModel , uniteObject, session);
+
+        }catch(error){
+            await session.abortTransaction();
+            throw error;
+        }finally{
+            await session.endSession();
+        }
+
+    return newCompleteUserDoc;
 }
 
 /***************************************************************/
-
-async function updateDoc(model , docId , dataObject){
+async function deleteDocById(model , docId, session = null){
 
     try{
-        const updatedDoc = await model.findByIdAndUpdate(docId , { $set: dataObject },
-            {
-                new: true,
-                runValidators: true  
-            });
-        return updatedDoc;
+        const doc = await model.findByIdAndDelete(docId, {session});
+        return doc
     }catch(error){
-        logger.error(`Error in updateDoc: ${error}`);
+        logger.error(`Error in deleteDocById: ${error}`);
         throw error;
     }
-
 }
+/***************************************************************/
+
+// async function updateDoc(model , docId , dataObject){
+
+
+// }
 
 /***************************************************************/
 
@@ -43,10 +59,10 @@ async function findUserByDocId(docId){
 
 async function findDocById(model , docId){
     try{
-        let doc = await model.findDocById(docId);
+        let doc = await model.findById(docId);
         return doc;
     }catch(error){
-        logger.error(`Error in findDocById: ${error}`);
+        logger.error(`Error in findById: ${error}`);
         throw error;
     }
 }
@@ -78,10 +94,10 @@ async function createUserByOauth(userData){
 
 /***************************************************************/
 
-async function createDoc(model , dataObject){
+async function createDoc(model , dataObject, session = null){
     try{
-    const doc = await model.create(dataObject);
-    return doc;
+    const docs = await model.create([dataObject], {session});
+    return docs[0];
     }catch(error){
         logger.error(`Error in createDoc: ${error}`);
         throw error;
