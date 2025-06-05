@@ -1,0 +1,141 @@
+/api/auth/google:
+  get:
+    tags: [Authentication]
+    summary: Initiates Google OAuth authentication
+    description: Redirects to Google login page
+    responses:
+      302:
+        description: Redirects to Google authentication
+
+/api/auth/google/callback:
+  get:
+    tags: [Authentication]
+    summary: Google OAuth callback endpoint
+    description: |
+      Handles the callback from Google OAuth. This endpoint is called by Google after successful authentication.
+      - For new users: Redirects to complete-registration page
+      - For existing users: Redirects to dashboard
+    parameters:
+      - in: query
+        name: code
+        schema:
+          type: string
+        description: Authorization code from Google (automatically handled by OAuth flow)
+      - in: query
+        name: state
+        schema:
+          type: string
+        description: State parameter for security (automatically handled by OAuth flow)
+    responses:
+      303:
+        description: Redirect based on user status
+        headers:
+          Set-Cookie:
+            schema:
+              type: string
+              example: "jwt=xyz...; HttpOnly; Secure; SameSite=Strict"
+          Location:
+            schema:
+              type: string
+              examples:
+                newUser:
+                  value: "https://example.com/complete-registration"
+                  description: "For new users who need to complete registration"
+                existingUser:
+                  value: "https://example.com/dashboard"
+                  description: "For existing users with completed registration"
+      401:
+        description: Authentication failed
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                successStatus:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Authentication failed"
+
+/api/auth/complete-registration:
+  post:
+    tags: [Authentication]
+    summary: Complete user registration
+    security:
+      - cookieAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/userDataForm'
+    responses:
+      200:
+        description: Registration completed successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                successStatus:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "User completed registration successfully"
+                user:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "683ee3220b4859bd42d033d1"
+                    firstName:
+                      type: string
+                      example: "Test"
+                    lastName:
+                      type: string
+                      example: "User"
+                    email:
+                      type: string
+                      example: "test@example.com"
+                    role:
+                      type: string
+                      enum: ["Guest", "Host"]
+                      example: "Guest"
+                    isRegistrationComplete:
+                      type: boolean
+                      example: true
+                    phoneNumber:
+                      type: string
+                      example: "0529876543"
+                    address:
+                      type: string
+                      example: "456 Guest Avenue, Host City"
+      400:
+        description: Invalid registration data
+      401:
+        description: Unauthorized - Invalid or missing token
+
+/api/auth/logout:
+  post:
+    tags: [Authentication]
+    summary: Logout user
+    security:
+      - cookieAuth: []
+    responses:
+      200:
+        description: Successfully logged out
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                successStatus:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Logged out successfully"
+      401:
+        description: Unauthorized - Invalid or missing token 

@@ -8,6 +8,8 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const passport = require("passport");
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger-config');
 
 require("./services/passport-auth-service"); // configures passport strategies
 
@@ -39,6 +41,9 @@ app.use(passport.session());
 app.use("/api/auth", authRoute);
 
 app.use("/api/user", userRoute);
+
+// Swagger documentation route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 404 handler
 app.use((req, res, next) => {

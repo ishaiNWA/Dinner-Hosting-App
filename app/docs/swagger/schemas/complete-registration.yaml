@@ -1,0 +1,67 @@
+ components:
+  schemas:
+    # Main registration schema
+    userDataForm:
+      description: '/complete-registration request body structure'
+      type: object
+      required: [userDataForm]
+      properties:
+        userDataForm:
+          type: object
+          required: [role, roleDetails]
+          description: 'User registration form structure'
+          properties:
+            role:
+              type: string
+              enum: [Guest, Host]
+              description: 'User type (Guest/Host)'
+            roleDetails:
+              $ref: '#/components/schemas/RoleDetails'
+              description: 'Role-specific details including contact information'
+      example:
+        userDataForm:
+          role: 'Guest'
+          roleDetails:
+            contactDetails:
+              phoneNumber: '0529876543'
+              address: '123 Guest Street, Tel Aviv'
+            dietaryRestrictions: ['vegetarian']
+            allergies: 'none'
+
+    # Role-specific details schema
+    RoleDetails:
+      oneOf:
+        - type: object
+          description: 'Guest specific details'
+          required: [contactDetails, dietaryRestrictions]
+          properties:
+            contactDetails:
+              $ref: '#/components/schemas/ContactDetails'
+            dietaryRestrictions:
+              type: array
+              items:
+                type: string
+                enum: [vegetarian, vegan, kosher, halal, none]
+            allergies:
+              type: string
+              default: 'none'
+        - type: object
+          description: 'Host specific details'
+          required: [contactDetails]
+          properties:
+            contactDetails:
+              $ref: '#/components/schemas/ContactDetails'
+
+    # Contact details schema
+    ContactDetails:
+      type: object
+      required: [phoneNumber, address]
+      properties:
+        phoneNumber:
+          type: string
+          description: 'Valid Israeli phone number'
+          example: '0529876543'
+        address:
+          type: string
+          description: 'Physical address'
+          example: '123 Main Street, Tel Aviv'

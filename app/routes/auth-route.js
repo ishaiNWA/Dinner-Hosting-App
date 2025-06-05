@@ -16,5 +16,4 @@ router.post("/complete-registration", protect, validateUser, completeProfile);
 
 router.post("/logout", protect, logout);
 
-
 module.exports = router;

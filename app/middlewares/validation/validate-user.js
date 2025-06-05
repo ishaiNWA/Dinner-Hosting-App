@@ -5,12 +5,11 @@ const { userRoles } = require("../../common/user-roles");
 
 /**
  * Validates user registration data using a nested structure for better organization:
- * {
- *   role: "guest",
+ * userDataForm: {
+ *   role: [Guest, Host],
  *   roleDetails: {
- *     contactDetails: { phoneNumber, address },
- *     dietaryRestrictions: [...],  // for guests
- *     allergies: "none"            // for guests
+ *     contactDetails: { phoneNumber, address ... },
+ *     role specific fields // for guests
  *   }
  * }
  */
