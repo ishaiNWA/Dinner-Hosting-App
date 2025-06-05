@@ -11,8 +11,8 @@
 - [x] User roles (Host/Guest)
 - [x] User registration and profile completion
 - [x] Authentication testing
-- [ ] Logout and session management
-- [ ] Swagger documentation
+- [x] Logout and session management
+- [x] Swagger documentation
 
 ### Weeks 3-4 (June 17-30): Core Backend Features
 - [ ] Dinner Event Model & APIs
