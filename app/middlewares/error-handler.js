@@ -16,6 +16,9 @@ const errorHandler = (err, req, res, next) => {
   // Log for debugging
   logger.error(JSON.stringify(err, null, 2));
 
+  console.log(`err is : ${JSON.stringify(err, null, 2)}`);
+
+
   let errorResponse = err instanceof ErrorResponse ? err : createPropeResponseForCommonErrors(err)
 
 
@@ -59,6 +62,7 @@ function createPropeResponseForCommonErrors(err) {
     errorResponse = new ErrorResponse(404, `Resource not found with id: ${err.value}`);
   }
 
+  
   return errorResponse || new ErrorResponse(500, err);
 }
 

@@ -1,4 +1,5 @@
 const {User, Guest, Host} = require("../models/User");
+const BlackListTokenModel = require("../models/BlackListToken");
 const mongoose = require("mongoose");
 const {userRoles} = require("../common/user-roles");
 const logger = require("../utils/logger");
@@ -43,13 +44,19 @@ async function deleteDocById(model , docId, session = null){
 }
 /***************************************************************/
 
-// async function updateDoc(model , docId , dataObject){
-
-
-// }
+async function findBlackListdToken(token){
+    const findBlackListdToken = await findDoc(BlackListTokenModel, {token});
+    return findBlackListdToken;
+}
 
 /***************************************************************/
 
+async function createBlackListedToken(blackListedTokenObject){
+    const blackListedTokenDoc = await createDoc(BlackListTokenModel, blackListedTokenObject);
+    return blackListedTokenDoc;
+}
+
+/***************************************************************/
 
 async function findUserByDocId(docId){
     return await findDocById(User , docId)
@@ -85,7 +92,6 @@ async function findDoc(model , queryObject){
     }
 }
 
-
 /***************************************************************/
 
 async function createUserByOauth(userData){
@@ -109,7 +115,9 @@ module.exports = {
     createUserByOauth,
     findUserByEmail,
     findUserByDocId,
-    updateUserByRole
+    updateUserByRole,
+    findBlackListdToken,
+    createBlackListedToken
 };
 
 

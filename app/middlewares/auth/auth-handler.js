@@ -8,7 +8,7 @@ const DASHBOARD_URL = 'https://example.com/dashboard';
 const ERROR_URL = (err) => `https://example.com/auth-error?reason=${encodeURIComponent(err)}`;
 const logger = require("../../utils/logger");
 
-async function googleAuthHandler(req, res, next) {
+const googleAuthHandler = async (req, res, next) => {
 
   const authenticator = passport.authenticate('google', async function authenticationResultCallback (err, user, info){
     if (err) {
@@ -18,7 +18,6 @@ async function googleAuthHandler(req, res, next) {
 
     logger.info(`User authenticated successfully: ${user.id}`);
     
-
     const token = jwt.generateJWT(user);
 
     const cookieOptions = {
@@ -42,48 +41,42 @@ async function googleAuthHandler(req, res, next) {
   authenticator(req, res, next);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports = {
   googleAuthHandler,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

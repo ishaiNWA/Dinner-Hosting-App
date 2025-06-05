@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
+const { extractRawTokenFromRequest } = require("../../utils/jwt");
 const logger = require('../../utils/logger');
 const env = require("../../config/env")
+const dbService = require("../../services/db-service");
 const {ErrorResponse} = require("../../common/errors");
 
 /*****************************************************************************/
@@ -14,16 +16,34 @@ const {ErrorResponse} = require("../../common/errors");
  * @throws {ErrorResponse} If token is invalid or missing
  */
 const protect = async (req, res, next) => {
-  const token = extractToken(req);
+  const rawToken = extractRawTokenFromRequest(req);
 
-  if (!token) {
+  if (!rawToken) {
     logger.error('No token provided');
     return next(new ErrorResponse(401, 'Unauthorized'));
   }
 
-  try {
-    const { id, email, role } = jwt.verify(token, env.JWT_SECRET_KEY);
-    req.token = { id, email, role };
+  try{
+    const blackListedTokenDoc = await dbService.findBlackListdToken(rawToken);  
+  if(blackListedTokenDoc){
+    logger.error('Token is blacklisted');
+    console.log(`blackListedTokenDoc is : ${JSON.stringify(blackListedTokenDoc, null, 2)}`);
+    return next(new ErrorResponse(401, 'Unauthorized'));
+  }
+  }catch(error){
+    logger.error(`Error in protect middleware: ${error}`);
+    return next(new ErrorResponse(500, 'Internal server error'));
+  }
+
+  try {    
+    const verifiedToken = jwt.verify(rawToken, env.JWT_SECRET_KEY);
+
+    req.decodedToken = {
+        id: verifiedToken.id,
+        email: verifiedToken.email,
+        role: verifiedToken.role,
+        exp: new Date(verifiedToken.exp * 1000)
+    };
     next();
   } catch(error) {
     logger.error('Invalid token');
@@ -33,15 +53,5 @@ const protect = async (req, res, next) => {
 
 /*****************************************************************************/
 
-function extractToken(req) {
-    if (req.cookies && req.cookies.jwt) {
-      return req.cookies.jwt;
-    } else if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-      const authHeader = req.headers.authorization;
-      return authHeader.split("Bearer")[1].trim();
-    } else {
-      return null;
-    }
-  }
-
-module.exports = protect;
+module.exports = {
+  protect};

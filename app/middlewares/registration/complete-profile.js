@@ -9,7 +9,7 @@ const { ErrorResponse } = require('../../common/errors');
  */
 const completeProfile = async (req, res, next) => {
 
-    const {id} = req.token;
+    const {id} = req.decodedToken;
     const {role} = req.body.userDataForm;
     
     const userDoc = await dbService.findUserByDocId(id);

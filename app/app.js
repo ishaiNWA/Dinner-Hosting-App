@@ -12,6 +12,7 @@ const passport = require("passport");
 require("./services/passport-auth-service"); // configures passport strategies
 
 const authRoute = require("./routes/auth-route");
+const userRoute = require("./routes/user-route");
 
 // Middleware
 app.use(morgan("dev")); // HTTP request logger middleware
@@ -36,6 +37,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/api/auth", authRoute);
+
+app.use("/api/user", userRoute);
 
 // 404 handler
 app.use((req, res, next) => {

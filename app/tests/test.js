@@ -97,10 +97,9 @@ describe("Auth Routes", () => {
 
             const response = await request(app)
                 .post("/api/auth/complete-registration")
-                .send({userDataForm})
+                .send({ userDataForm })
                 .set('Cookie', cookie);
-            
-            // Add detailed logging if the response status is not 200
+
             if (response.status !== 200) {
                 console.log('\nTest Failed Details:');
                 console.log('Response Status:', response.status);
@@ -115,6 +114,7 @@ describe("Auth Routes", () => {
             expect(response.body.user.phoneNumber).toBe(userDataForm.roleDetails.contactDetails.phoneNumber);
             expect(response.body.user.address).toBe(userDataForm.roleDetails.contactDetails.address);
         });
+
         it("should create a valid Host-user with in DB with isRegistrationComplete set to true", async () => {
             const seedUser = await mocFunctions.seedInitialUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
@@ -122,16 +122,16 @@ describe("Auth Routes", () => {
 
             const response = await request(app)
                 .post("/api/auth/complete-registration")
-                .send({userDataForm})
+                .send({ userDataForm })
                 .set('Cookie', cookie);
-            
+
             expect(response.status).toBe(200);
             expect(response.body.message).toBe("User completed registration successfully");
             expect(response.body.user.isRegistrationComplete).toBe(true);
             expect(response.body.user.role).toBe(userRoles.HOST);
             expect(response.body.user.phoneNumber).toBe(userDataForm.roleDetails.contactDetails.phoneNumber);
-
         });
+
         it("should not create an INVALID  Guest-user and return 400 status code", async () => {
             const seedUser = await mocFunctions.seedInitialUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
@@ -139,11 +139,12 @@ describe("Auth Routes", () => {
 
             const response = await request(app)
                 .post("/api/auth/complete-registration")
-                .send({userDataForm})   
+                .send({ userDataForm })
                 .set('Cookie', cookie);
 
             expect(response.status).toBe(400);
         });
+
         it("should not create an INVALID  Host-user and return 400 status code", async () => {
             const seedUser = await mocFunctions.seedInitialUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
@@ -151,32 +152,62 @@ describe("Auth Routes", () => {
 
             const response = await request(app)
                 .post("/api/auth/complete-registration")
-                .send({userDataForm})   
+                .send({ userDataForm })
                 .set('Cookie', cookie);
 
             expect(response.status).toBe(400);
         });
 
-        it("sholud try to create a already complete-registered user and return 400 status code", async () => {  
+        it("sholud try to create a already complete-registered user and return 400 status code", async () => {
             const seedUser = await mocFunctions.seedCompleteUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
             const userDataForm = mocData.mockValidGuestData;
 
             const response = await request(app)
                 .post("/api/auth/complete-registration")
-                .send({userDataForm})   
+                .send({ userDataForm })
                 .set('Cookie', cookie);
 
             expect(response.status).toBe(400);
             expect(response.error.text).toContain("User already completed profile");
         });
+
         it("should try use bad cookie and return 401 status code", async () => {
             const userDataForm = mocData.mockValidGuestData;
-            const cookie = mocFunctions.createBadCookie(userDataForm)
+            const cookie = mocFunctions.createBadCookie(userDataForm);
+
             const response = await request(app)
                 .post("/api/auth/complete-registration")
-                .send({userDataForm})   
+                .send({ userDataForm })
                 .set('Cookie', 'bad-cookie');
+
+            expect(response.status).toBe(401);
+            expect(response.error.text).toContain("Unauthorized");
+        });
+
+        it.only("should retrieve user data for getMe route. and after logout should return 401 status code", async () => {
+            const seedUser = await mocFunctions.seedCompleteUserInDB();
+            const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
+
+            let response;
+            response = await request(app)
+                .get("/api/user/me")
+                .set('Cookie', cookie);
+
+            expect(response.status).toBe(200);
+            expect(response.body.data.email).toBe(seedUser.email);
+
+                response = await request(app)
+                    .post("/api/auth/logout")
+                    .set('Cookie', cookie);
+                    
+
+            expect(response.status).toBe(200);
+            expect(response.body.message).toBe("Logged out successfully");
+
+            response = await request(app)
+                .get("/api/user/me")
+                .set('Cookie', cookie);
 
             expect(response.status).toBe(401);
             expect(response.error.text).toContain("Unauthorized");

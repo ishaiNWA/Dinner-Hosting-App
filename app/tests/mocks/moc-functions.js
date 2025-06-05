@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const {userRoles} = require("../../common/user-roles");
 const {dietaryRestrictionsArray} = require("../../common/dietary-restrictions");
 const mocData = require('./moc-data');
+const {generateJWT} = require("../../utils/jwt")
 
 
 // Mock the passport Google strategy
@@ -29,10 +30,8 @@ async function seedCompleteUserInDB(){
 }
 
 function createAuthCookieForMockUser(user){
-    const id = user._id;
-    const email = user.email;
-    const role = user.role ? user.role : null;
-    const token = jwt.sign({id, email, role}, process.env.JWT_SECRET_KEY);
+    user.id = user._id;
+    const token = generateJWT(user);
     const cookie = `jwt=${token}; HttpOnly; Secure; SameSite=Strict`;
     return cookie;
 }
