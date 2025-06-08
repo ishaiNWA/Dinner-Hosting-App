@@ -52,31 +52,43 @@ This document outlines the plan for the Event Management System for the Dinner H
 ```typescript
 interface DinnerEvent {
   id: string;
-  hostId: string;
-  title: string;
-  description: string;
-  dateTime: Date;
+  hostUserId: Schema.Types.ObjectId;  // References User model
+  
+  timing: {
+    eventDate: Date;
+    createdAt: Date;
+    lastUpdated: Date;
+  };
+  
   location: {
     address: string;
-    coordinates: {
-      lat: number;
-      lng: number;
-    }
+    // Future implementation:
+    // coordinates: {
+    //   type: 'Point';
+    //   coordinates: number[];
+    // }
   };
+  
   capacity: {
     total: number;
-    available: number;
+    current: number;
   };
+  
   dietary: {
     isKosher: boolean;
     isVeganFriendly: boolean;
     additionalOptions: string[];
   };
-  status: 'open for registration' | 'fully-booked' | 'cancelled' | 'completed';
-  allowsPlusOne: boolean;
-  maxPlusOnes: number;
-  registrations: [EventRegistration];
-  lastUpdated: Date;
+  
+  status: {
+    current: 'open for registration' | 'fully-booked' | 'cancelled' | 'completed';
+    history: [{
+      status: string;
+      statusSubmissionDate: Date;
+    }];
+  };
+  
+  registrations: Schema.Types.ObjectId[];  // References to EventRegistration
 }
 ```
 
@@ -84,41 +96,26 @@ interface DinnerEvent {
 ```typescript
 interface EventRegistration {
   id: string;
-  eventId: string;
-  guestId: ObjectId; 
-  status: 'pending' | 'approved' | 'declined' | 'cancelled' | 'participated';
-  numberOfGuests: number;
-  dietaryRestrictions: {
-    type: [String],
-    enum: {
-      values: dietaryRestrictionsArray,
-      message: '{VALUE} is not a valid dietary restriction'
-    },
-    required: true,
+  eventId: Schema.Types.ObjectId;  // References Event model
+  guestId: Schema.Types.ObjectId;  // References User model
+  
+  status: {
+    current: 'pending' | 'approved' | 'declined' | 'cancelled' | 'participated';
+    history: [{
+      status: string;
+      statusSubmissionDate: Date;
+    }];
   };
-  allergies: {
-    type: String,
-    default: "none",
-  };
-  notes: string[];
-  registrationDate: Date;
-  lastStatusUpdate: Date;
-  statusHistory: [{
-    status: string;
-    timestamp: Date;
-  }];
-}
-```
 
-### Guest (Additional Fields)
-```typescript
-interface GuestRegistrationHistory {
-  submittedRegistrations: [{
-    eventId: string;
-    registrationId: string;
-    status: string;
-    submissionDate: Date;
-  }];
+  numberOfGuests: number;  // defaults to 1
+
+  dietary: {
+    dietaryRestrictions: string[];  // from dietaryRestrictionsArray enum
+    allergies: string;  // defaults to "none"
+    additionalNotes: string;
+  };
+
+  notes: string;
 }
 ```
 
@@ -143,13 +140,14 @@ interface GuestRegistrationHistory {
 - GET /api/guests/:id/registrations - Get guest's registration history
 - GET /api/guests/:id/registrations/:regId - Get specific registration details
 
+
 ## Implementation Phases
 
 ### Phase 1: Core Event Management
-1. Event model and database schema
-2. Basic CRUD operations for events
-3. Event search functionality
-4. Basic registration system
+1. [x] Event and EventRefgister model and database schema 
+2. [ ] Basic CRUD operations for events
+3. [ ] Event search functionality
+4. [ ] Basic registration system
 
 ### Phase 2: Search and Discovery
 1. Advanced search filters
