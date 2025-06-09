@@ -1,4 +1,5 @@
 const {User, Guest, Host} = require("../models/User");
+const Event = require("../models/Event");
 const BlackListTokenModel = require("../models/BlackListToken");
 const mongoose = require("mongoose");
 const {userRoles} = require("../common/user-roles");
@@ -21,6 +22,7 @@ async function updateUserByRole(userDocId , role , userObjectForUpdate){
          let uniteObject = {...removedUserDoc.toObject(), ...userObjectForUpdate};
         newCompleteUserDoc = await createDoc(roleModel , uniteObject, session);
 
+        await session.commitTransaction();
         }catch(error){
             await session.abortTransaction();
             throw error;
@@ -94,12 +96,54 @@ async function findDoc(model , queryObject){
 
 /***************************************************************/
 
+async function findMultipleDocs(model , queryObject){
+    try{
+        let docs = await model.find(queryObject);
+        return docs;
+    }catch(error){
+        logger.error(`Error in findMultipleDocs: ${error}`);
+        throw error;
+    }
+}
+/***************************************************************/
+
+async function pushItemToDocArray(model, docFilterObj, arrayUpdateObj, session = null){
+    try{
+        const doc = await model.findOneAndUpdate(
+            docFilterObj, 
+            { $push: arrayUpdateObj }, 
+            { session, new: true }
+        );
+        if(!doc){
+            throw new Error("no document found to update");
+        }
+        return doc;
+    }catch(error){
+        logger.error(`Error in pushItemToDocArray: ${error}`);
+        throw error;
+    }
+}
+
+/***************************************************************/
+
 async function createUserByOauth(userData){
    return await createDoc(User , userData);
 }
 
 /***************************************************************/
 
+async function findEventDoc(queryObject){
+    return await findDoc(Event , queryObject);
+}
+
+/***************************************************************/
+
+/**
+ * 
+ * @description creating a document in the database
+ * can handle mongoose session
+ * return a single document
+ */
 async function createDoc(model , dataObject, session = null){
     try{
     const docs = await model.create([dataObject], {session});
@@ -111,13 +155,52 @@ async function createDoc(model , dataObject, session = null){
 }
 
 /***************************************************************/
+
+async function publishEventForHostUser(hostUserId, eventForm){
+
+    const session = await mongoose.startSession();
+    try{
+        session.startTransaction();
+        
+        //1. create the event doc
+        const eventDoc = await createDoc(Event, eventForm, session);
+        
+        //2. update Host's publishedEvents array
+        await pushItemToDocArray(
+            User, 
+            { _id: hostUserId }, 
+            { publishedEvents: eventDoc._id }, 
+            session
+        );
+
+        await session.commitTransaction();
+        return eventDoc;
+    }catch(error){
+        await session.abortTransaction();
+        logger.error(`Error in publishEventForHostUser: ${error}`);
+        throw error;
+    }finally{
+        await session.endSession();
+    }
+}
+/***************************************************************/
+
+async function findMultipleEvents(queryObject){
+    return await findMultipleDocs(Event, queryObject);
+}
+
+/***************************************************************/
+
 module.exports = {
     createUserByOauth,
     findUserByEmail,
     findUserByDocId,
     updateUserByRole,
     findBlackListdToken,
-    createBlackListedToken
+    createBlackListedToken,
+    findEventDoc,
+    publishEventForHostUser,
+    findMultipleEvents,
 };
 
 

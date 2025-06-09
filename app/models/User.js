@@ -68,12 +68,11 @@ const HostSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  publishedDinnerEvent: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'DinnerEvent'
-    }
-  ],
+  publishedEvents: {
+    type: [Schema.Types.ObjectId],
+    ref: 'Event',
+    default: [],
+  },
   //attaching contact details fields to HostSchema
   ...contactDetails,
 });
@@ -96,6 +95,11 @@ const GuestSchema = new Schema({
   allergies: {
     type: String,
     default: "none",
+  },
+  registeredEvents: {
+    type: [Schema.Types.ObjectId],
+    ref: 'Event',
+    default: [],
   }
 });
 

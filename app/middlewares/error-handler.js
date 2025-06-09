@@ -22,7 +22,7 @@ const errorHandler = (err, req, res, next) => {
   let errorResponse = err instanceof ErrorResponse ? err : createPropeResponseForCommonErrors(err)
 
 
-
+  console.log(`errorResponse message is : ${errorResponse.message}`);
 
   return res.status(errorResponse.statusCode).json({
     successStatus: false,

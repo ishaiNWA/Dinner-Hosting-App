@@ -15,6 +15,7 @@ require("./services/passport-auth-service"); // configures passport strategies
 
 const authRoute = require("./routes/auth-route");
 const userRoute = require("./routes/user-route");
+const eventRoute = require("./routes/event-route");
 
 // Middleware
 app.use(morgan("dev")); // HTTP request logger middleware
@@ -41,6 +42,8 @@ app.use(passport.session());
 app.use("/api/auth", authRoute);
 
 app.use("/api/user", userRoute);
+
+app.use("/api/events", eventRoute);
 
 // Swagger documentation route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

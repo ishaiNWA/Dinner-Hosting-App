@@ -13,7 +13,7 @@ const { userRoles } = require("../../common/user-roles");
  *   }
  * }
  */
-const validateUser = (req, res, next) => {
+const validateUserSchema = (req, res, next) => {
     try {
         if(! req.body.userDataForm){
             return next(new ErrorResponse(400, "User data form is required"));
@@ -49,5 +49,5 @@ const validateUser = (req, res, next) => {
 };
 
 module.exports = {
-    validateUser,
+    validateUserSchema,
 };

@@ -2,7 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 const { googleAuthHandler, protect, logout } = require("../middlewares/auth");
-const { validateUser } = require("../middlewares/validation/validate-user");
+const { validateUserSchema } = require("../middlewares/validation/validate-user-schema");
 const {completeProfile} = require("../middlewares/registration/complete-profile");
 
 // Google OAuth for registration and login
@@ -12,7 +12,7 @@ router.get('/google',
 
 router.get(`/google/callback`, googleAuthHandler);
 
-router.post("/complete-registration", protect, validateUser, completeProfile);
+router.post("/complete-registration", protect, validateUserSchema, completeProfile);
 
 router.post("/logout", protect, logout);
 

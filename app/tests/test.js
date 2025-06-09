@@ -185,7 +185,7 @@ describe("Auth Routes", () => {
             expect(response.error.text).toContain("Unauthorized");
         });
 
-        it.only("should retrieve user data for getMe route. and after logout should return 401 status code", async () => {
+        it("should retrieve user data for getMe route. and after logout should return 401 status code", async () => {
             const seedUser = await mocFunctions.seedCompleteUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
 
