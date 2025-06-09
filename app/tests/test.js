@@ -213,4 +213,57 @@ describe("Auth Routes", () => {
             expect(response.error.text).toContain("Unauthorized");
         });
     });
+
+    describe("/events", () => {
+        it("should return 201 for 3 POST /events creation. and 200 for GET /events with count === 3 ", async () => {
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const guestCookie = mocFunctions.createAuthCookieForMockUser(guestUser);
+            const eventArray = mocFunctions.getMockValidEventArray();
+
+            const postResponses = await Promise.all(eventArray.map(async (event) => {
+                return await request(app)
+                    .post("/api/events")
+                    .send( event)
+                    .set('Cookie', hostCookie);
+            }));
+
+         //   console.log(`postResponses: ${JSON.stringify(postResponses[0])}`);
+
+            expect(postResponses.length).toBe(3);
+            expect(postResponses.every(response => response.status === 201)).toBe(true);
+            
+            // Test GET /events returns the 3 created events
+            const getResponse = await request(app)
+                .get("/api/events")
+                .set('Cookie', guestCookie);
+                
+            expect(getResponse.status).toBe(200);
+            expect(getResponse.body.count).toBe(3);
+        });
+
+        it.only("should return status code 400, and error message of : `You already have an event scheduled for this date`", async () => {
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const duplicateEventArray = mocFunctions.getDuplicateEventArray();
+
+            const responses = [];
+            
+            // Send requests sequentially to avoid race condition
+            for (const event of duplicateEventArray) {
+                const response = await request(app)
+                    .post("/api/events")
+                    .send(event)
+                    .set('Cookie', hostCookie);
+                responses.push(response);
+            }
+
+            console.log(`responses[2]: ${JSON.stringify(responses[2])}`);
+
+            expect(responses[2].status).toBe(400);
+            expect(responses[2].error.text).toContain("You already have an event scheduled for this date");
+        });
+    });
 });
+

@@ -39,8 +39,8 @@ async function getEvents(req, res, next){
     req.eventFilterObject = req.eventFilterObject || {};
 
     try{
+  
         const events = await dbService.findMultipleEvents(req.eventFilterObject);
-        
         // Transform events to summary format
         const eventSummaries = events.map(event => createEventSummary(event));
         

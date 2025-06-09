@@ -29,6 +29,14 @@ async function seedCompleteUserInDB(){
     return await User.create(mocData.mockValidCompleteUser);
 }
 
+async function seedCompleteHostUserInDB(){
+    return await User.create(mocData.mockValidCompleteHostUser);
+}
+
+async function seedCompleteGuestUserInDB(){
+    return await User.create(mocData.mockValidCompleteGuestUser);
+}
+
 function createAuthCookieForMockUser(user){
     user.id = user._id;
     const token = generateJWT(user);
@@ -45,13 +53,25 @@ function createBadCookie(user){
     return cookie;
 }
 
+function getMockValidEventArray(){
+    return mocData.mockValidEventArray;
+}
+
+function getDuplicateEventArray(){
+    return mocData.mockDuplicateEventArray
+}
+
 module.exports = {
 
     setupGoogleStrategyMock,
     seedInitialUserInDB,
     createAuthCookieForMockUser,
     seedCompleteUserInDB,
-    createBadCookie
+    seedCompleteHostUserInDB,
+    seedCompleteGuestUserInDB,
+    createBadCookie,
+    getMockValidEventArray,
+    getDuplicateEventArray
 };
 
 

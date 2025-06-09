@@ -57,6 +57,36 @@ const mockValidCompleteUser = {
   }
 
 
+  const mockValidCompleteHostUser = {
+    firstName: "TestHost",
+    lastName: "HostUser",
+    email: "HostTest@example.com",
+    isRegistrationComplete: true,
+    _id: "683ee3220b4859bd42d033d2",
+    __v: 0,
+    role: userRoles.HOST,
+    isAuthorizedByManager: false,
+    publishedDinnerEvent: [],
+    phoneNumber: "0529876543",
+    address: "456 Host Avenue, Host City"
+  }
+
+
+  const mockValidCompleteGuestUser = {
+    firstName: "TestGuest",
+    lastName: "GuestUser",
+    email: "GuestTest@example.com",
+    isRegistrationComplete: true,
+    _id: "683ee3220b4859bd42d033d3",
+    __v: 0,
+    role: userRoles.GUEST,
+    isAuthorizedByManager: false,
+    publishedDinnerEvent: [],
+    phoneNumber: "0529876543",
+    address: "456 Host Avenue, Host City"
+  }
+
+
 // Invalid mock data for testing validation
 const mockInvalidUserData = {
     // Missing role
@@ -90,13 +120,142 @@ const mockInvalidHostData = {
     }
 };
 
+
+
+const mockValidEventArray = [
+    {
+        eventForm: {
+            timing: {
+                eventDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000) // 10 days from now
+            },
+            location: {
+                address: "123 Dinner Street, Tel Aviv, Israel"
+            },
+            capacity: {
+                total: 8
+            },
+            dietary: {
+                isKosher: true,
+                isVeganFriendly: false,
+                additionalOptions: "Gluten-free options available"
+            }
+        }
+    },
+    {
+        eventForm: {
+            timing: {
+                eventDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000) // 12 days from now
+            },
+            location: {
+                address: "456 Host Avenue, Jerusalem, Israel"
+            },
+            capacity: {
+                total: 6
+            },
+            dietary: {
+                isKosher: false,
+                isVeganFriendly: true,
+                additionalOptions: "Organic ingredients only"
+            }
+        }
+    },
+    {
+        eventForm: {
+            timing: {
+                eventDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000) // 15 days from now
+            },
+            location: {
+                address: "789 Culinary Road, Haifa, Israel"
+            },
+            capacity: {
+                total: 12
+            },
+            dietary: {
+                isKosher: true,
+                isVeganFriendly: true
+                // additionalOptions is optional, so omitting it here
+            }
+        }
+    }
+]
+
+
+
+
+const mockDuplicateEventArray = [
+    {
+        eventForm: {
+            timing: {
+                eventDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000) // 10 days from now
+            },
+            location: {
+                address: "123 Dinner Street, Tel Aviv, Israel"
+            },
+            capacity: {
+                total: 8
+            },
+            dietary: {
+                isKosher: true,
+                isVeganFriendly: false,
+                additionalOptions: "Gluten-free options available"
+            }
+        }
+    },
+    {
+        eventForm: {
+            timing: {
+                eventDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000) // 12 days from now
+            },
+            location: {
+                address: "456 Host Avenue, Jerusalem, Israel"
+            },
+            capacity: {
+                total: 6
+            },
+            dietary: {
+                isKosher: false,
+                isVeganFriendly: true,
+                additionalOptions: "Organic ingredients only"
+            }
+        }
+    },
+    {
+        eventForm: {
+            timing: {
+                eventDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000) // 10 days from now
+            },
+            location: {
+                address: "789 Culinary Road, Haifa, Israel"
+            },
+            capacity: {
+                total: 12
+            },
+            dietary: {
+                isKosher: true,
+                isVeganFriendly: true
+                // additionalOptions is optional, so omitting it here
+            }
+        }
+    }
+]
+
+
+
+
+
+
 module.exports = {
+
     mockGoogleProfile,
     mocInitialUser,
     mockValidGuestData,
     mockValidHostData,
     mockValidCompleteUser,
+    mockValidCompleteHostUser,
+    mockValidCompleteGuestUser,
     mockInvalidUserData,
     mockInvalidGuestData,
-    mockInvalidHostData
+    mockInvalidHostData,
+    mockValidEventArray,
+    mockDuplicateEventArray
 }; 

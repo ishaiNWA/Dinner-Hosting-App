@@ -5,13 +5,11 @@ function filterEventsForGuests(req, res, next){
 
     req.eventFilterObject = req.eventFilterObject || {};
 
-    req.eventFilterObject.status = {
-        current : eventStatuses.OPEN_FOR_REGISTRATION,
-    }
+    req.eventFilterObject['status.current'] = eventStatuses.OPEN_FOR_REGISTRATION;
 
     next();
-    }
+}
 
 module.exports = {
-filterEventsForGuests,
+    filterEventsForGuests,
 }

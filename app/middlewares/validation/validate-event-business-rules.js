@@ -25,10 +25,14 @@ const validateEventBusinessRules = async (req, res, next) => {
             'status.current': { $ne: eventStatuses.CANCELLED }, // Don't count cancelled events
         };
 
+        console.log(`findEventDoc with queryObject: ${JSON.stringify(queryObject)}`);
+
         //validate the Host has no event in the same date
         const hostDoc = await dbService.findEventDoc(queryObject);
-
-        if(hostDoc){
+        
+        console.log(`DEBUG: Found existing event:`, hostDoc ? 'YES' : 'NO');
+        if (hostDoc) {
+            console.log(`DEBUG: Existing event date:`, hostDoc.timing.eventDate);
             logger.error(`Host ${hostId} already has an event scheduled for ${eventForm.timing.eventDate}`);
             return next(new ErrorResponse(400, `You already have an event scheduled for this date: ${eventDate.toDateString()}`));
         }

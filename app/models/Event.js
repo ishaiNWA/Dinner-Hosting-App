@@ -83,7 +83,6 @@ const EventSchema = new Schema({
             }],
             default: [{
                 status: eventStatuses.OPEN_FOR_REGISTRATION,
-                statusSubmissionDate: Date.now
             }]
         }
     },

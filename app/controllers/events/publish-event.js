@@ -11,12 +11,16 @@ const publishEvent = async (req, res, next) => {
 
     try {
         const eventDoc = await dbService.publishEventForHostUser(eventForm.hostUserId, eventForm);
+
+        console.log(`SUCCESS: eventDoc: ${JSON.stringify(eventDoc)}`);
+
         res.status(201).json({
             success: true,
             message: "Event published successfully",
             data: eventDoc
         });
     } catch (error) {
+        console.log(`error in publishEvent: ${error}`);
         logger.error(`Error publishing event: ${error}`);
         return next(new ErrorResponse(500, 'Error publishing event'));
     }

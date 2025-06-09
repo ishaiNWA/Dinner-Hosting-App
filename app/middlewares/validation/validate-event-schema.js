@@ -10,9 +10,9 @@ const validateEventSchema = (req, res, next) => {
         return next(new ErrorResponse(400, `event form is required`));
     }
 
-    const { error } = eventSchema.validate(req.body,{
+    const { error } = eventSchema.validate(req.body.eventForm,{
         stripUnknown: true,
-        abortEarly
+        abortEarly: false
     });
     if(error){
         logger.error(`Event Validation error: ${error}`);

@@ -1,6 +1,7 @@
-const dbService = require("../services/db-service");
-const { ErrorResponse } = require("../common/errors");
-const logger = require("../utils/logger");
+const dbService = require("../../services/db-service")     
+const { ErrorResponse } = require("../../common/errors");
+const logger = require("../../utils/logger");
+
 
 const getMe = async (req, res, next) => {
 
