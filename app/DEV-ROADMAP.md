@@ -15,20 +15,25 @@
 - [x] Swagger documentation
 
 ### Weeks 3-4 (June 17-30): Core Backend Features
-- [ ] Dinner Event Model & APIs
-  - [ ] Create event endpoint
+- [x] Dinner Event Model & APIs
+  - [x] Create event endpoint
   - [ ] Update event endpoint
   - [ ] Delete event endpoint
-  - [ ] List events endpoint
+  - [x] List events endpoint
 - [ ] Event Registration System
   - [ ] Request registration endpoint
   - [ ] Approve/reject registration endpoint
   - [ ] Registration status management
   - [ ] Chat  ???(might be postponed)
-- [ ] Search/Filter Functionality
-  - [ ] Query parameters for event search
-  - [ ] Filter by date, location, etc.
-- [ ] Basic testing for each feature
+- [x] Search/Filter Functionality
+  - [x] Query parameters for event search
+  - [x] Filter by date, dietary preferences
+  - [ ] Filter by location (planned for future)
+- [x] Basic testing for each feature
+  - [x] Event creation tests
+  - [x] Event listing tests  
+  - [x] Event filtering tests
+  - [x] Business rule validation tests
 
 ## Phase 2: Frontend Development (July 1 - August 24)
 
