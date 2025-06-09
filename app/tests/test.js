@@ -243,7 +243,7 @@ describe("Auth Routes", () => {
             expect(getResponse.body.count).toBe(3);
         });
 
-        it.only("should return status code 400, and error message of : `You already have an event scheduled for this date`", async () => {
+        it("should return status code 400, and error message of : `You already have an event scheduled for this date`", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
             const duplicateEventArray = mocFunctions.getDuplicateEventArray();
@@ -263,6 +263,46 @@ describe("Auth Routes", () => {
 
             expect(responses[2].status).toBe(400);
             expect(responses[2].error.text).toContain("You already have an event scheduled for this date");
+        });
+
+        it.only("should create 3 events and query for specific event using all filter parameters", async () => {
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const guestCookie = mocFunctions.createAuthCookieForMockUser(guestUser);
+            const eventArray = mocFunctions.getMockValidEventArray();
+
+            // Create all 3 events
+            const postResponses = await Promise.all(eventArray.map(async (event) => {
+                return await request(app)
+                    .post("/api/events")
+                    .send(event)
+                    .set('Cookie', hostCookie);
+            }));
+
+            expect(postResponses.length).toBe(3);
+            expect(postResponses.every(response => response.status === 201)).toBe(true);
+
+            // Query for Event 2 specifically (the only one with isKosher=false AND isVeganFriendly=true)
+            const targetEvent = eventArray[1].eventForm; // Event 2: isKosher=false, isVeganFriendly=true
+            const targetDate = targetEvent.timing.eventDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+
+            const queryResponse = await request(app)
+                .get(`/api/events?isKosher=false&isVeganFriendly=true&eventDate=${targetDate}`)
+                .set('Cookie', guestCookie);
+
+            expect(queryResponse.status).toBe(200);
+            expect(queryResponse.body.success).toBe(true);
+            expect(queryResponse.body.count).toBe(1);
+            
+            // Verify the returned event matches our target
+            const returnedEvent = queryResponse.body.data[0];
+            expect(returnedEvent.dietary.isKosher).toBe(false);
+            expect(returnedEvent.dietary.isVeganFriendly).toBe(true);
+            expect(returnedEvent.location.address).toBe(targetEvent.location.address);
+            expect(returnedEvent.capacity.total).toBe(targetEvent.capacity.total);
+            expect(returnedEvent.dietary.additionalOptions).toBe(targetEvent.dietary.additionalOptions);
+            
         });
     });
 });
