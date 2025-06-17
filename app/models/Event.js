@@ -87,13 +87,38 @@ const EventSchema = new Schema({
         }
     },
 
-    registrations: {
-      type: [Schema.Types.ObjectId],
-      ref: "EventRegistration",
-      default: [],
-    },
- 
+    participants: {
+        type: [{
+          guestId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+          },
+          registeredAt: {
+            type: Date,
+            default: Date.now
+          },
+          dietaryRestrictions: {
+            type: [String],
+            enum: dietaryRestrictionsArray,
+            required: true
+          },
+          allergies: {
+            type: String,
+            required: true
 
+          },
+          numberOfGuests: {
+            type: Number,
+            default: 1
+          },
+          notes: {
+            type: String,
+            required: false
+          }
+        }],
+        default: []
+      }
 })
 
 
