@@ -96,7 +96,12 @@ const GuestSchema = new Schema({
     type: String,
     default: "none",
   },
-  registeredEvents: {
+  upcomingEvents: {
+    type: [Schema.Types.ObjectId],
+    ref: 'Event',
+    default: [],
+  },
+  eventHistory: {
     type: [Schema.Types.ObjectId],
     ref: 'Event',
     default: [],

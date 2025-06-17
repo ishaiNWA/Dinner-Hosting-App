@@ -105,12 +105,12 @@ const EventSchema = new Schema({
           },
           allergies: {
             type: String,
-            required: true
-
+            required: true,
+            message: "Allergies are required - specify 'none' if none"
           },
-          numberOfGuests: {
+          plusOne: {
             type: Number,
-            default: 1
+            default: 0,
           },
           notes: {
             type: String,
