@@ -66,6 +66,12 @@ async function findUserByDocId(docId){
 
 /***************************************************************/
 
+async function findEventByDocId(docId){
+    return await findDocById(Event , docId)
+}    
+
+/***************************************************************/
+
 async function findDocById(model , docId){
     try{
         let doc = await model.findById(docId);
@@ -107,6 +113,14 @@ async function findMultipleDocs(model , queryObject){
 }
 /***************************************************************/
 
+/**
+ * @description push an item to an array in a document
+ * @param {model} - the model to update
+ * @param {object} - the filter object to find the document
+ * @param {object} - the object to push to the array
+ * @param {object} - the session to use
+ * @returns {object} - the updated document
+ */
 async function pushItemToDocArray(model, docFilterObj, arrayUpdateObj, session = null){
     try{
         const doc = await model.findOneAndUpdate(
@@ -117,6 +131,9 @@ async function pushItemToDocArray(model, docFilterObj, arrayUpdateObj, session =
         if(!doc){
             throw new Error("no document found to update");
         }
+
+        console.log(`item was push to array for document in ${model} model, with id ${doc._id}`)
+        logger.info(`item was push to array for document in ${model} model, with id ${doc._id}`)
         return doc;
     }catch(error){
         logger.error(`Error in pushItemToDocArray: ${error}`);
@@ -185,6 +202,41 @@ async function publishEventForHostUser(hostUserId, eventForm){
 }
 /***************************************************************/
 
+async function bookGuestForEvent(bookingForm, eventDoc, guestDoc){
+
+    const guestId = guestDoc._id;
+    const eventId = eventDoc._id;
+
+    const session = await mongoose.startSession();
+
+    try{
+        session.startTransaction();
+
+        // Add participant to event
+        await pushItemToDocArray(Event, {_id: eventDoc._id},
+            {bookedParticipants: bookingForm},
+            session
+        )
+
+        await pushItemToDocArray(User, {_id: guestId}, {upcomingEvents: eventId}, session)
+
+        await session.commitTransaction();
+        
+        logger.info(`Successfully booked guest ${guestId} for event ${eventId}. Total guests: ${totalGuests}`);
+        
+    }catch(error){
+        await session.abortTransaction();
+        logger.error(`Error in bookGuestForEvent: ${error.message}`, error);
+        throw error;
+        
+    }finally{
+        await session.endSession();
+    }
+
+}
+
+/***************************************************************/
+
 async function findMultipleEvents(queryObject){
     return await findMultipleDocs(Event, queryObject);
 }
@@ -201,6 +253,8 @@ module.exports = {
     findEventDoc,
     publishEventForHostUser,
     findMultipleEvents,
+    findEventByDocId,
+    bookGuestForEvent,
 };
 
 

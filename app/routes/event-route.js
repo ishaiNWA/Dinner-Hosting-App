@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const registrationRouter = require("./registration-route");
+const bookingRouter = require("./booking-route");
 const { protect , authorize } = require("../middlewares/auth/index");
 const { userRoles } = require("../common/user-roles");
 const { validateEventSchema , validateEventBusinessRules} = require("../middlewares/validation");
@@ -16,7 +16,7 @@ router.post("/", protect, authorize([userRoles.HOST]), validateEventSchema, vali
 router.get("/", protect, authorize([userRoles.GUEST]), filterEventsForGuests, applyEventQueryFilters, getEvents);
 
 
-// re-route to registration route
-router.use("/:eventId/registration", registrationRouter);
+// re-route to booking route
+router.use("/:eventId/booking", bookingRouter);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 const eventStatuses = require("../common/event-statuses");
+const { dietaryRestrictionsArray } = require("../common/dietary-restrictions");
 
 const EventSchema = new Schema({
     hostUserId: {
@@ -87,11 +88,23 @@ const EventSchema = new Schema({
         }
     },
 
-    participants: {
+    bookedParticipants: {
         type: [{
           guestId: {
             type: Schema.Types.ObjectId,
             ref: "User",
+            required: true
+          },
+          guestName: {
+            type: String,
+            required: true
+          },
+          guestEmail: {
+            type: String,
+            required: true
+          },
+          guestPhone: {
+            type: String,
             required: true
           },
           registeredAt: {
