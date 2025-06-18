@@ -1,6 +1,6 @@
 const { ErrorResponse } = require("../../common/errors");
 const logger = require("../../utils/logger");
-const { eventBookingSchema } = require("./schemas/booking-schema");
+const { BookingSchema } = require("./schemas/booking-schema");
 
 
 function validateBookingSchema(req, res, next){
@@ -10,7 +10,7 @@ function validateBookingSchema(req, res, next){
         return next(new ErrorResponse(400, "Booking form is required"));
     }
 
-    const {error} = eventBookingSchema.validate(bookingForm, {
+    const {error} = BookingSchema.validate(bookingForm, {
         stripUnknown: true,
         abortEarly : false
     });

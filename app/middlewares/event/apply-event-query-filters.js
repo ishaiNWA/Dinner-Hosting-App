@@ -1,5 +1,8 @@
 const { ErrorResponse } = require("../../common/errors");
 
+/**
+ * @description this function allows to build the eventFilterObject
+ */
 function applyEventQueryFilters(req ,res, next){
 
     req.eventFilterObject = req.eventFilterObject || {};

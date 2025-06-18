@@ -131,9 +131,6 @@ const mockValidEventArray = [
             location: {
                 address: "123 Dinner Street, Tel Aviv, Israel"
             },
-            capacity: {
-                total: 8
-            },
             dietary: {
                 isKosher: true,
                 isVeganFriendly: false,
@@ -149,9 +146,6 @@ const mockValidEventArray = [
             location: {
                 address: "456 Host Avenue, Jerusalem, Israel"
             },
-            capacity: {
-                total: 6
-            },
             dietary: {
                 isKosher: false,
                 isVeganFriendly: true,
@@ -166,9 +160,6 @@ const mockValidEventArray = [
             },
             location: {
                 address: "789 Culinary Road, Haifa, Israel"
-            },
-            capacity: {
-                total: 12
             },
             dietary: {
                 isKosher: true,
@@ -191,9 +182,6 @@ const mockDuplicateEventArray = [
             location: {
                 address: "123 Dinner Street, Tel Aviv, Israel"
             },
-            capacity: {
-                total: 8
-            },
             dietary: {
                 isKosher: true,
                 isVeganFriendly: false,
@@ -209,9 +197,6 @@ const mockDuplicateEventArray = [
             location: {
                 address: "456 Host Avenue, Jerusalem, Israel"
             },
-            capacity: {
-                total: 6
-            },
             dietary: {
                 isKosher: false,
                 isVeganFriendly: true,
@@ -226,9 +211,6 @@ const mockDuplicateEventArray = [
             },
             location: {
                 address: "789 Culinary Road, Haifa, Israel"
-            },
-            capacity: {
-                total: 12
             },
             dietary: {
                 isKosher: true,

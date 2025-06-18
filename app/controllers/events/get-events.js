@@ -6,7 +6,7 @@ const dbService = require("../../services/db-service")
  * Filter event data for guest list view
  * Only return information guests need for browsing/decision making
  */
-function createEventSummary(event) {
+function createEventSummaryForClient(event) {
     return {
         id: event._id,
         timing: {
@@ -15,11 +15,6 @@ function createEventSummary(event) {
         },
         location: {
             address: event.location.address
-        },
-        capacity: {
-            total: event.capacity.total,
-            available: event.capacity.total - event.capacity.current,
-            current: event.capacity.current
         },
         dietary: {
             isKosher: event.dietary.isKosher,
@@ -42,7 +37,7 @@ async function getEvents(req, res, next){
   
         const events = await dbService.findMultipleEvents(req.eventFilterObject);
         // Transform events to summary format
-        const eventSummaries = events.map(event => createEventSummary(event));
+        const eventSummaries = events.map(event => createEventSummaryForClient(event));
         
         res.status(200).json({
             success: true,

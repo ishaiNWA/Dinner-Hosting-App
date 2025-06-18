@@ -27,21 +27,7 @@ const eventSchema = Joi.object({
             })
     }).required(),
 
-        // Capacity validation
-        capacity: Joi.object({
-            total: Joi.number()
-                .integer()
-                .min(1)
-                .max(20)  // You can adjust this limit
-                .required()
-                .messages({
-                    'number.min': 'Capacity must be at least 1',
-                    'number.max': 'Capacity cannot exceed 20 guests',
-                    'any.required': 'Total capacity is required'
-                })
-        }).required(),
-
-            // Dietary validation
+    // Dietary validation
     dietary: Joi.object({
         isKosher: Joi.boolean()
             .required()

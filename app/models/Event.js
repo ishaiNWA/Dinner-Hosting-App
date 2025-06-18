@@ -39,16 +39,6 @@ const EventSchema = new Schema({
         //     }
         // }
     },
-    capacity: {
-        total: {
-            type: Number,
-            required: true,
-        },
-        current: {
-            type: Number,
-            default: 0,
-        }
-    },
     dietary: {
         isKosher: {
             type: Boolean,

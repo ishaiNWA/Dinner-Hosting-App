@@ -265,7 +265,7 @@ describe("Auth Routes", () => {
             expect(responses[2].error.text).toContain("You already have an event scheduled for this date");
         });
 
-        it.only("should create 3 events and query for specific event using all filter parameters", async () => {
+        it("should create 3 events and query for specific event using all filter parameters", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
@@ -300,7 +300,6 @@ describe("Auth Routes", () => {
             expect(returnedEvent.dietary.isKosher).toBe(false);
             expect(returnedEvent.dietary.isVeganFriendly).toBe(true);
             expect(returnedEvent.location.address).toBe(targetEvent.location.address);
-            expect(returnedEvent.capacity.total).toBe(targetEvent.capacity.total);
             expect(returnedEvent.dietary.additionalOptions).toBe(targetEvent.dietary.additionalOptions);
             
         });

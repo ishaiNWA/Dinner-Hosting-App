@@ -10,17 +10,11 @@ async function bookParticipantToEvent(req, res, next){
 
     try{
         const guestDoc = await dbService.findUserByDocId(guestId);
-        if(!guestDoc){
-            return next(new ErrorResponse(400, `guest(user) with id ${guestId} was not found`));
-        }
         const eventDoc = await dbService.findEventByDocId(eventId);
-        if(!eventDoc){
-            return next(new ErrorResponse(400, `event with id ${eventId} was not found`));
-        }
 
         await dbService.bookGuestForEvent(bookingForm, eventDoc, guestDoc);
 
-        res.status(200).json({
+        res.status(201).json({
             success: true,
             message: "participant booked successfully",
             data: {
