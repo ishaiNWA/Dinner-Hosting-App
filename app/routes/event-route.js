@@ -7,6 +7,7 @@ const { validateEventSchema , validateEventBusinessRules} = require("../middlewa
 const { publishEvent } = require("../controllers/events/publish-event");
 const { getEvents } = require("../controllers/events/get-events");
 const { filterEventsForGuests, filterEventsForHosts, applyEventQueryFilters } = require("../middlewares/event");
+const { updateEventStatus } = require("../controllers/events/host/update-event-status");
 
 // Host controllers
 const { getPublishedEvents } = require("../controllers/events/host/get-published-events");
@@ -23,6 +24,7 @@ router.get("/", protect, authorize([userRoles.GUEST]), filterEventsForGuests, ap
 // Host routes - manage published events
 router.get("/published", protect, authorize([userRoles.HOST]), filterEventsForHosts, getPublishedEvents);
 router.get("/published/:eventId", protect, authorize([userRoles.HOST]), getPublishedSingleEvent);
+router.patch("/published/:eventId/status", protect, authorize([userRoles.HOST]), updateEventStatus);
 
 // Guest routes - view upcoming events
 router.get("/upcoming", protect, authorize([userRoles.GUEST]), getUpcomingEvents);

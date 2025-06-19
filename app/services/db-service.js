@@ -143,6 +143,36 @@ async function pushItemToDocArray(model, docFilterObj, arrayUpdateObj, session =
 
 /***************************************************************/
 
+async function updateDoc(model, docFilterObj, updateObj, session = null){
+
+        return await model.findOneAndUpdate
+            (docFilterObj,
+            updateObj,
+            {session, new: true, runValidators: true});
+}
+
+/***************************************************************/
+
+async function updateEventStatus(eventFilterObj, newStatus){
+    const updateObj = {
+        $set: {
+        "status.current": newStatus,
+        "timing.lastUpdated": new Date()
+      },
+      $push: {
+        "status.history": {
+          status: newStatus,
+          statusSubmissionDate: new Date()
+        }
+      }
+    };
+    
+
+    return await updateDoc(Event, eventFilterObj, updateObj);
+}
+
+/***************************************************************/
+
 async function createUserByOauth(userData){
    return await createDoc(User , userData);
 }
@@ -264,6 +294,7 @@ module.exports = {
     findMultipleEvents,
     findEventByDocId,
     bookGuestForEvent,
+    updateEventStatus,
 };
 
 
