@@ -26,7 +26,7 @@ router.get("/published/:eventId", protect, authorize([userRoles.HOST]), getPubli
 
 // Guest routes - view upcoming events
 router.get("/upcoming", protect, authorize([userRoles.GUEST]), getUpcomingEvents);
-// router.get("/upcoming/:eventId", protect, authorize([userRoles.GUEST]), getUpcomingSingleEvent);
+ router.get("/upcoming/:eventId", protect, authorize([userRoles.GUEST]), getUpcomingSingleEvent);
 
 // re-route to booking route
 router.use("/:eventId/booking", bookingRouter);
