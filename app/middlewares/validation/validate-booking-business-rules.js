@@ -33,10 +33,6 @@ async function validateBookingBusinessRules(req, res, next){
             return next(new ErrorResponse(400, "Guest is already booked for another event in this date"));
         }
 
-        if(isAlreadyBooked(eventDoc, guestId)){
-            return next(new ErrorResponse(400, "Guest is already booked for this event"));
-        }
-
         next();
 
     }catch(error){
@@ -46,10 +42,7 @@ async function validateBookingBusinessRules(req, res, next){
 
 }
 
-/**
- * @description 
- * checks whether the guest is already booked for another event in the same date
- */
+
 function isBookedForTwoEventsSameDay(upcomingEvents, eventDoc){
 
     for(let event of upcomingEvents){
@@ -60,15 +53,7 @@ function isBookedForTwoEventsSameDay(upcomingEvents, eventDoc){
     return false;
 }
 
-function isAlreadyBooked(event , bookingGuestId){
-    
-    for(let participant of event.bookedParticipants){
-        if(participant.guestId.toString() === bookingGuestId.toString()){
-            return true;
-        }
-    }
-    return false;
-}
+
     
 
 

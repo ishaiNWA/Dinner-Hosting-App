@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const mocFunctions = require('./mocks/moc-functions');
 const mocData = require('./mocks/moc-data');
 const { userRoles } = require('../common/user-roles');
+const dbService = require('../services/db-service');
 
 let server;
 let originalDisconnectListener;
@@ -222,12 +223,14 @@ describe("Auth Routes", () => {
             const guestCookie = mocFunctions.createAuthCookieForMockUser(guestUser);
             const eventArray = mocFunctions.getMockValidEventArray();
 
-            const postResponses = await Promise.all(eventArray.map(async (event) => {
-                return await request(app)
+            const postResponses = [];
+            for(const event of eventArray){
+                const response = await request(app)
                     .post("/api/events")
-                    .send( event)
+                    .send(event)
                     .set('Cookie', hostCookie);
-            }));
+                postResponses.push(response);
+            }
 
          //   console.log(`postResponses: ${JSON.stringify(postResponses[0])}`);
 
@@ -272,13 +275,15 @@ describe("Auth Routes", () => {
             const guestCookie = mocFunctions.createAuthCookieForMockUser(guestUser);
             const eventArray = mocFunctions.getMockValidEventArray();
 
-            // Create all 3 events
-            const postResponses = await Promise.all(eventArray.map(async (event) => {
-                return await request(app)
+            const postResponses = [];
+            for(const event of eventArray){
+                const response = await request(app)
                     .post("/api/events")
                     .send(event)
                     .set('Cookie', hostCookie);
-            }));
+                postResponses.push(response);
+            }
+
 
             expect(postResponses.length).toBe(3);
             expect(postResponses.every(response => response.status === 201)).toBe(true);
@@ -302,6 +307,89 @@ describe("Auth Routes", () => {
             expect(returnedEvent.location.address).toBe(targetEvent.location.address);
             expect(returnedEvent.dietary.additionalOptions).toBe(targetEvent.dietary.additionalOptions);
             
+        });
+    });
+
+    describe("/booking", () => {
+        it("should return 201 for POST /booking", async () => {
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const eventObject = mocFunctions.getMockValidSingleEvent();
+
+
+
+            const eventResponse = await request(app)
+                .post("/api/events")
+                .send(eventObject)
+                .set('Cookie', hostCookie);
+
+            expect(eventResponse.status).toBe(201);
+            expect(eventResponse.body.message).toBe("Event published successfully");
+           
+            const eventId = eventResponse.body.data.eventId;
+            const bookingForm = mocFunctions.prepareMockValidBookingForm(guestUser._id);
+
+            const bookingResponse = await request(app)
+                .post(`/api/events/${eventId}/booking`)
+                .send({ bookingForm })
+                .set('Cookie', hostCookie);
+
+            expect(bookingResponse.status).toBe(201);
+
+            const guestUserDoc = await dbService.findUserByDocId(guestUser._id );
+            expect(guestUserDoc.upcomingEvents.length).toBe(1);
+            expect(guestUserDoc.upcomingEvents[0].toString()).toBe(eventId);
+
+            const eventDoc = await dbService.findEventByDocId(eventId);
+            expect(eventDoc.bookedParticipants.length).toBe(1);
+            expect(eventDoc.bookedParticipants[0].guestId.toString()).toBe(guestUser._id.toString());
+        });
+        it("for POST /booking, should return 400, and error message of: `Guest is already booked for another event in this date`", async () => {
+            const firstHostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const secondHostUser = await mocFunctions.seedSecondCompleteHostUserInDB();
+            const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
+            const firstHostCookie = mocFunctions.createAuthCookieForMockUser(firstHostUser);
+            const secondHostCookie = mocFunctions.createAuthCookieForMockUser(secondHostUser);
+            const eventObject = mocFunctions.getMockValidSingleEvent();
+
+
+            const firstEventResponse = await request(app)
+                .post("/api/events")
+                .send(eventObject)
+                .set('Cookie', firstHostCookie);
+                
+            expect(firstEventResponse.status).toBe(201);
+            expect(firstEventResponse.body.message).toBe("Event published successfully");
+
+            const secondEventResponse = await request(app)
+                .post("/api/events")
+                .send(eventObject)
+                .set('Cookie', secondHostCookie);
+
+                expect(secondEventResponse.status).toBe(201);
+                expect(secondEventResponse.body.message).toBe("Event published successfully");
+
+            const firstEventId = firstEventResponse.body.data.eventId;
+            const secondEventId = secondEventResponse.body.data.eventId;
+
+            const bookingForm = mocFunctions.prepareMockValidBookingForm(guestUser._id);
+
+            const firstBookingResponse = await request(app)
+                .post(`/api/events/${firstEventId}/booking`)
+                .send({ bookingForm })
+                .set('Cookie', firstHostCookie);
+
+            expect(firstBookingResponse.status).toBe(201);
+
+            const secondBookingResponse = await request(app)
+                .post(`/api/events/${secondEventId}/booking`)
+                .send({ bookingForm })
+                .set('Cookie', secondHostCookie);
+
+            expect(secondBookingResponse.status).toBe(400);
+            expect(secondBookingResponse.error.text).toContain("Guest is already booked for another event in this date");
+                
         });
     });
 });

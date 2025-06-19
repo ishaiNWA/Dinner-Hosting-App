@@ -128,12 +128,12 @@ async function pushItemToDocArray(model, docFilterObj, arrayUpdateObj, session =
             { $push: arrayUpdateObj }, 
             { session, new: true }
         );
+        
         if(!doc){
             throw new Error("no document found to update");
         }
 
-        console.log(`item was push to array for document in ${model} model, with id ${doc._id}`)
-        logger.info(`item was push to array for document in ${model} model, with id ${doc._id}`)
+
         return doc;
     }catch(error){
         logger.error(`Error in pushItemToDocArray: ${error}`);
@@ -184,7 +184,7 @@ async function publishEventForHostUser(hostUserId, eventForm){
         
         //2. update Host's publishedEvents array
         await pushItemToDocArray(
-            User, 
+            Host, 
             { _id: hostUserId }, 
             { publishedEvents: eventDoc._id }, 
             session
@@ -217,12 +217,20 @@ async function bookGuestForEvent(bookingForm, eventDoc, guestDoc){
             {bookedParticipants: bookingForm},
             session
         )
+        
+        console.log(`DEBUG: guestId type: ${typeof guestId}, value: ${guestId}`);
+        console.log(`DEBUG: eventId type: ${typeof eventId}, value: ${eventId}`);
+        
+        
+        const guestDoc =  await pushItemToDocArray(Guest, {_id: guestId},
+             {upcomingEvents: eventId}
+             , session)
 
-        await pushItemToDocArray(User, {_id: guestId}, {upcomingEvents: eventId}, session)
+        console.log(`DEBUG updated guestDoc: ${JSON.stringify(guestDoc)}`)
 
         await session.commitTransaction();
         
-        logger.info(`Successfully booked guest ${guestId} for event ${eventId}. Total guests: ${totalGuests}`);
+        logger.info(`Successfully booked guest ${guestId} for event ${eventId}`);
         
     }catch(error){
         await session.abortTransaction();

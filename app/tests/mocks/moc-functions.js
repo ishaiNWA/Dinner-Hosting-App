@@ -33,6 +33,10 @@ async function seedCompleteHostUserInDB(){
     return await User.create(mocData.mockValidCompleteHostUser);
 }
 
+async function seedSecondCompleteHostUserInDB(){
+    return await User.create(mocData.secondMockValidCompleteHostUser);
+}
+
 async function seedCompleteGuestUserInDB(){
     return await User.create(mocData.mockValidCompleteGuestUser);
 }
@@ -61,6 +65,16 @@ function getDuplicateEventArray(){
     return mocData.mockDuplicateEventArray
 }
 
+function prepareMockValidBookingForm(guestId){
+    const bookingForm = { ...mocData.mockValidBookingForm }; // Create a copy
+    bookingForm.guestId = guestId;
+    return bookingForm; // Return just the booking form object
+}
+
+function getMockValidSingleEvent(){
+    return mocData.mocValidSingleEvent;
+}
+
 module.exports = {
 
     setupGoogleStrategyMock,
@@ -71,7 +85,10 @@ module.exports = {
     seedCompleteGuestUserInDB,
     createBadCookie,
     getMockValidEventArray,
-    getDuplicateEventArray
+    getDuplicateEventArray,
+    prepareMockValidBookingForm,
+    getMockValidSingleEvent,
+    seedSecondCompleteHostUserInDB,
 };
 
 

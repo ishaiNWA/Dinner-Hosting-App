@@ -17,7 +17,9 @@ const publishEvent = async (req, res, next) => {
         res.status(201).json({
             success: true,
             message: "Event published successfully",
-            data: eventDoc
+            data: {
+                eventId: eventDoc._id,
+            }
         });
     } catch (error) {
         console.log(`error in publishEvent: ${error}`);

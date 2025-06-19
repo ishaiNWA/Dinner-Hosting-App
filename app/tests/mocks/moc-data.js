@@ -66,11 +66,24 @@ const mockValidCompleteUser = {
     __v: 0,
     role: userRoles.HOST,
     isAuthorizedByManager: false,
-    publishedDinnerEvent: [],
     phoneNumber: "0529876543",
-    address: "456 Host Avenue, Host City"
+    address: "456 Host Avenue, Host City",
+    publishedEvents: []
   }
 
+
+  const secondMockValidCompleteHostUser = {
+    firstName: "secondTestHost",
+    lastName: "secondHostUser",
+    email: "secondHostTest@example.com",
+    isRegistrationComplete: true,
+    _id: "683ee3220b4859bd42d033d4",
+    role: userRoles.HOST,
+    isAuthorizedByManager: false,
+    phoneNumber: "0529876544",
+    address: "500 Host Avenue, Host City",
+    publishedEvents: []
+  }
 
   const mockValidCompleteGuestUser = {
     firstName: "TestGuest",
@@ -81,9 +94,10 @@ const mockValidCompleteUser = {
     __v: 0,
     role: userRoles.GUEST,
     isAuthorizedByManager: false,
-    publishedDinnerEvent: [],
     phoneNumber: "0529876543",
-    address: "456 Host Avenue, Host City"
+    address: "456 Host Avenue, Host City",
+    dietaryRestrictions: [dietaryRestrictionsArray[0], dietaryRestrictionsArray[1]],
+    allergies: "none",
   }
 
 
@@ -221,7 +235,29 @@ const mockDuplicateEventArray = [
     }
 ]
 
+const mocValidSingleEvent = {
+    eventForm: {
+        timing: {
+            eventDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000) // 10 days from now
+        },
+        location: {
+            address: "123 Dinner Street, Tel Aviv, Israel"
+        },
+        dietary: {
+            isKosher: true,
+            isVeganFriendly: false,
+            additionalOptions: "Gluten-free options available"
+        }
+    }
+}
 
+
+const mockValidBookingForm = {
+    dietaryRestrictions: [dietaryRestrictionsArray[0], dietaryRestrictionsArray[3]],
+    allergies: "none",
+    plusOne: 1,
+    notes: "I Love Shnitzel"
+}
 
 
 
@@ -239,5 +275,8 @@ module.exports = {
     mockInvalidGuestData,
     mockInvalidHostData,
     mockValidEventArray,
-    mockDuplicateEventArray
+    mockDuplicateEventArray,
+    mocValidSingleEvent,
+    mockValidBookingForm,
+    secondMockValidCompleteHostUser,
 }; 
