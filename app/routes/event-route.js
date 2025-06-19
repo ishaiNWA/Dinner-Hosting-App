@@ -7,16 +7,26 @@ const { validateEventSchema , validateEventBusinessRules} = require("../middlewa
 const { publishEvent } = require("../controllers/events/publish-event");
 const { getEvents } = require("../controllers/events/get-events");
 const { filterEventsForGuests, filterEventsForHosts, applyEventQueryFilters } = require("../middlewares/event");
-const { getPublishedEvents } = require("../controllers/events/get-published-events");
 
+// Host controllers
+const { getPublishedEvents } = require("../controllers/events/host/get-published-events");
+const { getPublishedSingleEvent } = require("../controllers/events/host/get-published-single-event");
 
+// Guest controllers  
+const { getUpcomingEvents } = require("../controllers/events/guest/get-upcoming-events");
+const { getUpcomingSingleEvent } = require("../controllers/events/guest/get-upcoming-single-event");
 
 // Event management
 router.post("/", protect, authorize([userRoles.HOST]), validateEventSchema, validateEventBusinessRules, publishEvent);
 router.get("/", protect, authorize([userRoles.GUEST]), filterEventsForGuests, applyEventQueryFilters, getEvents);
 
-router.get("/published", protect, authorize([userRoles.HOST]),filterEventsForHosts,  getPublishedEvents);
+// Host routes - manage published events
+router.get("/published", protect, authorize([userRoles.HOST]), filterEventsForHosts, getPublishedEvents);
+router.get("/published/:eventId", protect, authorize([userRoles.HOST]), getPublishedSingleEvent);
 
+// Guest routes - view upcoming events
+router.get("/upcoming", protect, authorize([userRoles.GUEST]), getUpcomingEvents);
+// router.get("/upcoming/:eventId", protect, authorize([userRoles.GUEST]), getUpcomingSingleEvent);
 
 // re-route to booking route
 router.use("/:eventId/booking", bookingRouter);

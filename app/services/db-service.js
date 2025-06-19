@@ -251,6 +251,7 @@ async function findMultipleEvents(queryObject){
 
 /***************************************************************/
 
+
 module.exports = {
     createUserByOauth,
     findUserByEmail,
