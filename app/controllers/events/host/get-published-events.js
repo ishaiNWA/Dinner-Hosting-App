@@ -1,7 +1,6 @@
-const { ErrorResponse } = require("../../common/errors");
-const logger = require("../../utils/logger");
-const dbService = require("../../services/db-service")
-const eventStatuses = require("../../common/event-statuses");
+const { ErrorResponse } = require("../../../common/errors");
+const logger = require("../../../utils/logger");
+const dbService = require("../../../services/db-service")
 
 
 function createEventSummaryForHost(event){

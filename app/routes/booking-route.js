@@ -6,16 +6,18 @@ const { validateBookingSchema , validateBookingBusinessRules} = require("../midd
 const { extractGuestDetails } = require("../middlewares/booking/extract-guest-details");
 const { bookParticipantToEvent } = require("../controllers/events/host/book-participant-to-event");
 const { deleteBooking } = require("../controllers/events/host/delete-booking");
+const { validateRouteParams } = require("../middlewares/validation");
 
 router.post("/", 
     protect,
     authorize([userRoles.HOST]),
+    validateRouteParams,
     validateBookingSchema,
     extractGuestDetails,
     validateBookingBusinessRules,
     bookParticipantToEvent,
 );
 
-router.delete("/:guestId", protect, authorize([userRoles.HOST]), deleteBooking);
+router.delete("/:guestId", protect, authorize([userRoles.HOST]), validateRouteParams, deleteBooking);
 
 module.exports = router;

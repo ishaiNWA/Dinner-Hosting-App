@@ -1,4 +1,6 @@
 const eventStatuses = require("../../common/event-statuses");
+const { ErrorResponse } = require("../../common/errors");
+const logger = require("../../utils/logger");
 
 
 async function filterEventsForHosts(req, res, next){
@@ -13,13 +15,16 @@ async function filterEventsForHosts(req, res, next){
     
     // filter by event statuses
     if(params.eventStatuses){
+        // Convert single string to array for consistent handling
+        const statusArray = Array.isArray(params.eventStatuses) ? params.eventStatuses : [params.eventStatuses];
 
-       for(const status of params.eventStatuses){
+       for(const status of statusArray){
         if(! eventStatuses[status]){
+            logger.error(`Invalid event status: ${status}`);
             return next(new ErrorResponse(400, "Invalid event status"));
         }
        }
-        req.eventFilterObject['status.current'] = { $in: params.eventStatuses.map(status => eventStatuses[status]) };
+        req.eventFilterObject['status.current'] = { $in: statusArray.map(status => eventStatuses[status]) };
     }
 
     next();

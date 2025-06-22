@@ -10,12 +10,14 @@ async function updateEventStatus(req, res, next){
 
     const validStatuses = Object.values(eventStatuses);
     if(!validStatuses.includes(status)){
+        logger.error(`${status} is not a valid event status`)
         return next(new ErrorResponse(400, "Invalid event status"));
     }
 
     try{
         const eventDoc = await dbService.updateEventStatus({_id: eventId, hostUserId}, status);
         if(!eventDoc){
+            console.log(`EVENT NOT FOUND!!`)
             return next(new ErrorResponse(404, "Event not found"));
         }
 

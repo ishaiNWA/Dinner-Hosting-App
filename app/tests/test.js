@@ -7,6 +7,7 @@ const mocFunctions = require('./mocks/moc-functions');
 const mocData = require('./mocks/moc-data');
 const { userRoles } = require('../common/user-roles');
 const dbService = require('../services/db-service');
+const eventStatuses = require('../common/event-statuses');
 
 let server;
 let originalDisconnectListener;
@@ -284,7 +285,6 @@ describe("Auth Routes", () => {
                 postResponses.push(response);
             }
 
-
             expect(postResponses.length).toBe(3);
             expect(postResponses.every(response => response.status === 201)).toBe(true);
 
@@ -308,7 +308,112 @@ describe("Auth Routes", () => {
             expect(returnedEvent.dietary.additionalOptions).toBe(targetEvent.dietary.additionalOptions);
             
         });
+
+        it("GET published - should return amount of published events according to eventStatuses filter", async () => {
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const eventArray = mocFunctions.getMockValidEventArray();
+
+            const postResponses = [];
+            for(const event of eventArray){
+                const response = await request(app)
+                    .post("/api/events")
+                    .send(event)
+                    .set('Cookie', hostCookie);
+                postResponses.push(response);
+            }
+            expect(postResponses.length).toBe(3);
+
+            let getPublishedResponse = await request(app)
+                .get("/api/events/published?eventStatuses=OPEN_FOR_REGISTRATION")
+                .set('Cookie', hostCookie);
+            expect(getPublishedResponse.status).toBe(200);
+            expect(getPublishedResponse.body.count).toBe(3);
+
+            const firstEventId = postResponses[0].body.data.eventId;
+
+            await dbService.updateEventStatus({_id : firstEventId}, eventStatuses.FULLY_BOOKED);
+
+            getPublishedResponse = await request(app)
+                .get("/api/events/published?eventStatuses=OPEN_FOR_REGISTRATION")
+                .set('Cookie', hostCookie);
+                
+            expect(getPublishedResponse.status).toBe(200);
+            expect(getPublishedResponse.body.count).toBe(2);
+            expect(getPublishedResponse.body.data.length).toBe(2);
+        });
+        it("GET /published/:eventId - should return 200 and event details if event is found, and 404 if event does not found", async () => {
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const eventArray = mocFunctions.getMockValidEventArray();
+
+            const postResponses = [];
+            for(const event of eventArray){
+                const response = await request(app)
+                    .post("/api/events")
+                    .send(event)
+                    .set('Cookie', hostCookie);
+                postResponses.push(response);
+            }
+            expect(postResponses.length).toBe(3);
+            expect(postResponses.every(response => response.status === 201)).toBe(true);
+
+            let eventId = postResponses[0].body.data.eventId;
+
+            console.log(`PUBLISHED eventId: ${eventId}`);
+
+            let getPublishedSingleEventResponse = await request(app)
+                .get(`/api/events/published/${eventId}`)
+                .set('Cookie', hostCookie);
+
+            expect(getPublishedSingleEventResponse.status).toBe(200);
+            expect(getPublishedSingleEventResponse.body.data.eventId).toBe(eventId);
+            expect(getPublishedSingleEventResponse.body.data.location.address).toBe(eventArray[0].eventForm.location.address);
+
+            //replace last 4 digits with 0000
+            eventId = eventId.slice(0, -4) + '0000';
+
+            getPublishedSingleEventResponse = await request(app)
+                .get(`/api/events/published/${eventId}`)
+                .set('Cookie', hostCookie);
+
+            expect(getPublishedSingleEventResponse.status).toBe(404);
+        });
+        it("should update an event status when proper eventStatuses value is passed",async ()=>{
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const eventObject = mocFunctions.getMockValidSingleEvent();
+
+            const eventResponse = await request(app)
+            .post("/api/events")
+            .send(eventObject)
+            .set('Cookie', hostCookie);
+
+            expect(eventResponse.status).toBe(201);
+            expect(eventResponse.body.message).toBe("Event published successfully");
+
+            let eventId = eventResponse.body.data.eventId;
+
+            let getEventResponse = await request(app)
+            .get(`/api/events/published/${eventId}`)
+            .set('Cookie', hostCookie);
+
+
+            expect(getEventResponse.body.data.status.current).toBe(eventStatuses.OPEN_FOR_REGISTRATION);
+
+            const changeStatusResponse = await request(app)
+            .patch(`/api/events/published/${eventId}/status`)
+            .send({status : eventStatuses.FULLY_BOOKED})
+            .set("Cookie" , hostCookie);
+
+            expect(changeStatusResponse.status).toBe(200);
+            expect(changeStatusResponse.body.newStatus).toBe(eventStatuses.FULLY_BOOKED);
+
+        })
     });
+
+
 
     describe("/booking", () => {
         it("should return 201 for POST /booking", async () => {
@@ -391,6 +496,121 @@ describe("Auth Routes", () => {
             expect(secondBookingResponse.error.text).toContain("Guest is already booked for another event in this date");
                 
         });
+        it("GET /upcoming/  AND DELETE /booking/:guestId - should return 3 booked events berfore DELETE, and 2 after DELETE", async () => {
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const guestCookie = mocFunctions.createAuthCookieForMockUser(guestUser)
+            const eventArray = mocFunctions.getMockValidEventArray();
+
+            const postResponses = [];
+            for(const event of eventArray){
+                const response = await request(app)
+                    .post("/api/events")
+                    .send(event)
+                    .set('Cookie', hostCookie);
+                postResponses.push(response);
+            }
+
+            expect(postResponses.length).toBe(3);
+            for(const event of postResponses){
+                expect(event.status).toBe(201);
+            }
+
+            let eventIds = [];
+            for(const event of postResponses){
+                eventIds.push(event.body.data.eventId);
+            }
+
+            const bookingForm = mocFunctions.prepareMockValidBookingForm(guestUser._id);
+
+            for(const eventId of eventIds){
+                const bookingResponse = await request(app)
+                    .post(`/api/events/${eventId}/booking`)
+                    .send({ bookingForm })
+                    .set('Cookie', hostCookie);
+                expect(bookingResponse.status).toBe(201);
+            }
+
+            const getUpcomingEventsResponse = await request(app)
+                .get("/api/events/upcoming")
+                .set('Cookie', guestCookie);
+
+            expect(getUpcomingEventsResponse.status).toBe(200);
+            expect(getUpcomingEventsResponse.body.count).toBe(3);
+
+            let guestUserDoc = await dbService.findUserByDocId(guestUser._id);
+            expect(guestUserDoc.upcomingEvents.includes(eventIds[0])).toBe(true);
+            expect(guestUserDoc.upcomingEvents.length).toBe(3);
+
+
+            //delete the booking
+            const deleteResponse = await request(app)
+                .delete(`/api/events/${eventIds[0]}/booking/${guestUser._id}`)
+                .set('Cookie', hostCookie);
+
+            expect(deleteResponse.status).toBe(200);
+
+            
+            const getUpcomingEventsResponseAfterDelete = await request(app)
+                .get("/api/events/upcoming")
+                .set('Cookie', guestCookie);
+
+            //check that the event is not in the upcoming events
+            expect(getUpcomingEventsResponseAfterDelete.status).toBe(200);
+            expect(getUpcomingEventsResponseAfterDelete.body.count).toBe(2);
+            expect(getUpcomingEventsResponseAfterDelete.body.data.includes(eventIds[0])).toBe(false);
+            
+        });
+        it("GET /upcoming/:eventId - should return 200 and event details if event is found, and 404 if event does not found", async () => {
+            const hostUser = await mocFunctions.seedCompleteHostUserInDB();
+            const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
+            const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
+            const guestCookie = mocFunctions.createAuthCookieForMockUser(guestUser);
+            const eventArray = mocFunctions.getMockValidEventArray();
+
+            const postResponses = [];
+            for(const event of eventArray){
+                const response = await request(app)
+                    .post("/api/events")
+                    .send(event)
+                    .set('Cookie', hostCookie);
+                postResponses.push(response);
+            }
+
+            expect(postResponses.length).toBe(3);
+            for(const event of postResponses){
+                expect(event.status).toBe(201);
+            }
+
+            let eventId = postResponses[0].body.data.eventId;
+
+            const bookingForm = mocFunctions.prepareMockValidBookingForm(guestUser._id);
+
+            const bookingResponse = await request(app)
+            .post(`/api/events/${eventId}/booking`)
+            .send({ bookingForm })
+            .set('Cookie', hostCookie);
+            expect(bookingResponse.status).toBe(201);
+        
+
+            let getUpcomingSingleEventResponse = await request(app)
+                .get(`/api/events/upcoming/${eventId}`)
+                .set('Cookie', guestCookie);
+
+            expect(getUpcomingSingleEventResponse.status).toBe(200);
+            expect(getUpcomingSingleEventResponse.body.data.eventId).toBe(eventId);
+            expect(getUpcomingSingleEventResponse.body.data.address).toBe(eventArray[0].eventForm.location.address);
+
+            //replace last 4 digits with 0000
+            eventId = eventId.slice(0, -4) + '0000';
+
+            getUpcomingSingleEventResponse = await request(app)
+                .get(`/api/events/upcoming/${eventId}`)
+                .set('Cookie', guestCookie);
+
+            expect(getUpcomingSingleEventResponse.status).toBe(404);
+        }); 
     });
 });
 

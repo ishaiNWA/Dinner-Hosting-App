@@ -11,10 +11,17 @@ function applyEventQueryFilters(req ,res, next){
     
     try {
         if(isKosher !== undefined){
-            req.eventFilterObject['dietary.isKosher'] = isKosher == 'true';
+            if(!['true', 'false'].includes(isKosher)) {
+                return next(new ErrorResponse(400, "isKosher must be 'true' or 'false'"));
+            }
+            req.eventFilterObject['dietary.isKosher'] = isKosher;
         }
+
         if(isVeganFriendly !== undefined){
-            req.eventFilterObject['dietary.isVeganFriendly'] = isVeganFriendly == 'true';
+            if(!['true', 'false'].includes(isVeganFriendly)) {
+                return next(new ErrorResponse(400, "isVeganFriendly must be 'true' or 'false'"));
+            }
+            req.eventFilterObject['dietary.isVeganFriendly'] = isVeganFriendly;
         }
         if(eventDate !== undefined){
             const date = new Date(eventDate);

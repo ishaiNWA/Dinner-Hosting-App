@@ -2,6 +2,7 @@ const { ErrorResponse } = require("../../common/errors");
 const logger = require("../../utils/logger");
 const dbService = require("../../services/db-service");
 const { isSameDate } = require("../../utils/helpers");
+const eventStatuses = require("../../common/event-statuses");
 
 async function validateBookingBusinessRules(req, res, next){
 
@@ -19,6 +20,10 @@ async function validateBookingBusinessRules(req, res, next){
 
         if(!eventDoc){
             return next(new ErrorResponse(404, `Event not found with id: ${eventId}`));
+        }
+
+        if(eventDoc.status.current !== eventStatuses.OPEN_FOR_REGISTRATION){
+            return next(new ErrorResponse(400, "Event is not open for booking"));
         }
     
         const guestDoc = await dbService.findUserByDocId(guestId);

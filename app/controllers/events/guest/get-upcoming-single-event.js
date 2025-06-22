@@ -7,9 +7,9 @@ async function createEventDetailForGuest(event){
     const hostDoc = await dbService.findUserByDocId(event.hostUserId);
     
     return {
-        id: event._id,
+        eventId: event._id,
         date: event.timing.eventDate,
-        location: event.location.address,
+        address: event.location.address,
         status: event.status.current,
         hostName: hostDoc.firstName + " " + hostDoc.lastName,
         hostEmail: hostDoc.email,

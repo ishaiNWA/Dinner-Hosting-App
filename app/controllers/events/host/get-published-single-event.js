@@ -7,7 +7,7 @@ const dbService = require("../../../services/db-service");
  */
 function createEventDetailForHost(event) {
     return {
-        id: event._id,
+        eventId: event._id,
         timing: {
             eventDate: event.timing.eventDate,
             createdAt: event.timing.createdAt,
