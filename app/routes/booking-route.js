@@ -5,7 +5,7 @@ const { userRoles } = require("../common/user-roles");
 const { validateBookingSchema , validateBookingBusinessRules} = require("../middlewares/validation");
 const { extractGuestDetails } = require("../middlewares/booking/extract-guest-details");
 const { bookParticipantToEvent } = require("../controllers/events/host/book-participant-to-event");
-
+const { deleteBooking } = require("../controllers/events/host/delete-booking");
 
 router.post("/", 
     protect,
@@ -15,5 +15,7 @@ router.post("/",
     validateBookingBusinessRules,
     bookParticipantToEvent,
 );
+
+router.delete("/:guestId", protect, authorize([userRoles.HOST]), deleteBooking);
 
 module.exports = router;

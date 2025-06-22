@@ -122,25 +122,43 @@ async function findMultipleDocs(model , queryObject){
  * @returns {object} - the updated document
  */
 async function pushItemToDocArray(model, docFilterObj, arrayUpdateObj, session = null){
-    try{
-        const doc = await model.findOneAndUpdate(
-            docFilterObj, 
-            { $push: arrayUpdateObj }, 
-            { session, new: true }
-        );
-        
-        if(!doc){
-            throw new Error("no document found to update");
-        }
 
-
-        return doc;
-    }catch(error){
-        logger.error(`Error in pushItemToDocArray: ${error}`);
-        throw error;
-    }
+  return await updateDocArray(model, docFilterObj , { $push: arrayUpdateObj } , session )
 }
 
+/***************************************************************/
+/**
+ * @description pull an item to an array in a document
+ * @param {model} - the model to update
+ * @param {object} - the filter object to find the document
+ * @param {object} - the object to push to the array
+ * @param {object} - the session to use
+ * @returns {object} - the updated document
+ */
+async function pullItemFromDocArray(model, docFilterObj, arrayUpdateObj, session = null){
+
+  return await updateDocArray(model, docFilterObj , { $pull: arrayUpdateObj } , session )
+}
+
+/***************************************************************/
+async function updateDocArray(model, docFilterObj, arrayUpdateObj, session = null) {
+  try {
+    const doc = await model.findOneAndUpdate(
+      docFilterObj,
+      arrayUpdateObj,
+      { session, new: true }
+    );
+    
+    if (!doc) {
+      throw new Error("No document found to update");
+    }
+    
+    return doc;
+  } catch (error) {
+    logger.error(`Error in updateDocArray: ${error}`);
+    throw error;
+  }
+}
 /***************************************************************/
 
 async function updateDoc(model, docFilterObj, updateObj, session = null){
@@ -247,16 +265,13 @@ async function bookGuestForEvent(bookingForm, eventDoc, guestDoc){
             {bookedParticipants: bookingForm},
             session
         )
-        
-        console.log(`DEBUG: guestId type: ${typeof guestId}, value: ${guestId}`);
-        console.log(`DEBUG: eventId type: ${typeof eventId}, value: ${eventId}`);
-        
-        
-        const guestDoc =  await pushItemToDocArray(Guest, {_id: guestId},
-             {upcomingEvents: eventId}
-             , session)
-
-        console.log(`DEBUG updated guestDoc: ${JSON.stringify(guestDoc)}`)
+           
+        // Rgister  Guest's upcoming event
+        await pushItemToDocArray(
+            Guest,
+            {_id: guestId},
+            {upcomingEvents: eventId},
+            session)
 
         await session.commitTransaction();
         
@@ -274,6 +289,50 @@ async function bookGuestForEvent(bookingForm, eventDoc, guestDoc){
 }
 
 /***************************************************************/
+
+async function deleteBookedGuestFromEvent(eventId, guestId){
+
+    const session = await mongoose.startSession();
+
+    try{
+        session.startTransaction();
+
+        // remove guest from the booked participants
+        await pullItemFromDocArray(
+            Event,
+            {_id : eventId} ,
+            { bookedParticipants: { guestId: guestId } },
+            session,
+        )
+
+        // remove event from guest's upcoming events
+        await pullItemFromDocArray(
+            Guest,
+            {_id : guestId},
+            {upcomingEvents : eventId},
+            session,
+        )
+
+        await session.commitTransaction();
+        logger.info(`Successfully deleted guest ${guestId} from event ${eventId}`);
+
+    }catch(error){
+        await session.abortTransaction();
+        logger.error(`Error in deleteBookedGuestFromEvent: ${error.message}`, error);
+        throw error;
+        
+    }finally{
+        await session.endSession();
+    }
+
+}
+
+
+/***************************************************************/
+
+
+
+
 
 async function findMultipleEvents(queryObject){
     return await findMultipleDocs(Event, queryObject);
@@ -295,6 +354,7 @@ module.exports = {
     findEventByDocId,
     bookGuestForEvent,
     updateEventStatus,
+    deleteBookedGuestFromEvent,
 };
 
 
