@@ -17,23 +17,36 @@
 ### Weeks 3-4 (June 17-30): Core Backend Features
 - [x] Dinner Event Model & APIs
   - [x] Create event endpoint
-  - [ ] Update event endpoint
-  - [ ] Delete event endpoint
-  - [x] List events endpoint
-- [ ] Event Registration System
-  - [ ] Request registration endpoint
-  - [ ] Approve/reject registration endpoint
-  - [ ] Registration status management
-  - [ ] Chat  ???(might be postponed)
-- [x] Search/Filter Functionality
+  - [x] Update event endpoint (status updates)
+  - [ ] Delete event endpoint (deferred - status change to 'cancelled' used instead)
+  - [x] List events endpoint (with role-based filtering)
+  - [x] Get single event endpoints (Host: published events, Guest: upcoming events)
+- [x] Event Booking System 
+  - [x] Direct booking endpoint (Host books guests to their published event)
+  - [x] Booking validation and business rules
+  - [x] Delete booking functionality
+  - [x] Dietary restrictions and allergies support
+- [x] Search/Filter Event Functionality
   - [x] Query parameters for event search
   - [x] Filter by date, dietary preferences
+  - [x] Role-based event filtering (Guests see only open events)
+  - [x] Event status filtering for hosts
   - [ ] Filter by location (planned for future)
 - [x] Basic testing for each feature
   - [x] Event creation tests
   - [x] Event listing tests  
   - [x] Event filtering tests
   - [x] Business rule validation tests
+  - [x] Booking system tests
+  - [x] Authentication integration tests
+
+## Bonus Features Implemented Beyond Original Scope
+- [x] Advanced role-based authorization system
+- [x] Comprehensive middleware architecture
+- [x] Event status management with history tracking
+- [x] Business rule validation (no duplicate events same day)
+- [x] Route parameter validation (like :eventId :guestId)
+- [x] Enhanced error handling and logging
 
 ## Phase 2: Frontend Development (July 1 - August 24)
 

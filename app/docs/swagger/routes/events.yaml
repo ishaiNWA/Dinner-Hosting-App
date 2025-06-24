@@ -1,0 +1,382 @@
+/api/events:
+  post:
+    tags: [Events]
+    summary: Create new dinner event (Host only)
+    security:
+      - cookieAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EventCreationRequest'
+    responses:
+      201:
+        description: Event created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Event published successfully"
+                data:
+                  type: object
+                  properties:
+                    eventId:
+                      type: string
+                      example: "683ee3220b4859bd42d033d1"
+      400:
+        description: Validation error or business rule violation
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Only hosts can create events
+
+  get:
+    tags: [Events]
+    summary: List available events (Guest only)
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: eventDate
+        in: query
+        schema:
+          type: string
+          format: date
+        description: Filter events by specific date
+      - name: isKosher
+        in: query
+        schema:
+          type: boolean
+        description: Filter kosher events
+      - name: isVeganFriendly
+        in: query
+        schema:
+          type: boolean
+        description: Filter vegan-friendly events
+    responses:
+      200:
+        description: Events retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Events fetched successfully"
+                count:
+                  type: number
+                  example: 3
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/GuestEventSummary'
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Only guests can view this endpoint
+
+/api/events/published:
+  get:
+    tags: [Events - Host]
+    summary: List host's published events
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: eventStatuses
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+            enum: [open for registration, fully-booked, cancelled, completed]
+        description: Filter by event status
+    responses:
+      200:
+        description: Published events retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Published events fetched successfully"
+                count:
+                  type: number
+                  example: 2
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/HostPublishedEventSummary'
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Only hosts can access this endpoint
+
+/api/events/published/{eventId}:
+  get:
+    tags: [Events - Host]
+    summary: Get single published event details
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Event ID
+    responses:
+      200:
+        description: Event details retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Published event fetched successfully"
+                data:
+                  $ref: '#/components/schemas/CompleteEventDetail'
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Can only view own events
+      404:
+        description: Event not found
+
+  patch:
+    tags: [Events - Host]
+    summary: Update event status
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Event ID
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [open for registration, fully-booked, cancelled, completed]
+                example: "fully-booked"
+    responses:
+      200:
+        description: Event status updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Event status updated successfully"
+                newStatus:
+                  type: string
+                  example: "fully-booked"
+                data:
+                  $ref: '#/components/schemas/CompleteEventDetail'
+      400:
+        description: Invalid status value
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Can only update own events
+      404:
+        description: Event not found
+
+/api/events/upcoming:
+  get:
+    tags: [Events - Guest]
+    summary: List upcoming events for guest
+    security:
+      - cookieAuth: []
+    responses:
+      200:
+        description: Upcoming events retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Upcoming events fetched successfully"
+                count:
+                  type: number
+                  example: 1
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/GuestEventSummary'
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Only guests can access this endpoint
+
+/api/events/upcoming/{eventId}:
+  get:
+    tags: [Events - Guest]
+    summary: Get single upcoming event details
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Event ID
+    responses:
+      200:
+        description: Event details retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Upcoming event fetched successfully"
+                data:
+                  $ref: '#/components/schemas/CompleteEventDetail'
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Only guests can access this endpoint
+      404:
+        description: Event not found
+
+/api/events/{eventId}/booking:
+  post:
+    tags: [Booking]
+    summary: Book participant to event (Host only)
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Event ID
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EventBookingRequest'
+    responses:
+      201:
+        description: Participant booked successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "participant booked successfully"
+                data:
+                  type: object
+                  properties:
+                    eventId:
+                      type: string
+                      example: "683ee3220b4859bd42d033d1"
+                    guestId:
+                      type: string
+                      example: "683ee3220b4859bd42d033d2"
+      400:
+        description: Validation error or business rule violation
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Only hosts can book participants
+      404:
+        description: Event or guest not found
+
+/api/events/{eventId}/booking/{guestId}:
+  delete:
+    tags: [Booking]
+    summary: Cancel participant booking (Host only)
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Event ID
+      - name: guestId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Guest ID
+    responses:
+      200:
+        description: Booking cancelled successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Booking deleted successfully"
+                data:
+                  type: object
+                  properties:
+                    eventId:
+                      type: string
+                      example: "683ee3220b4859bd42d033d1"
+                    removedGuestId:
+                      type: string
+                      example: "683ee3220b4859bd42d033d2"
+      401:
+        description: Unauthorized - Invalid or missing token
+      403:
+        description: Forbidden - Only hosts can cancel bookings
+      404:
+        description: Event not found or guest not booked to this event 

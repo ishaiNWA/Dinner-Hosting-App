@@ -1,0 +1,24 @@
+/api/user/me:
+  get:
+    tags: [Users]
+    summary: Get current user profile
+    security:
+      - cookieAuth: []
+    responses:
+      200:
+        description: User profile retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "User profile retrieved successfully"
+                data:
+                  $ref: '#/components/schemas/UserProfile'
+      401:
+        description: Unauthorized - Invalid or missing token 

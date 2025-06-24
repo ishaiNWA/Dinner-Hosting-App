@@ -1,0 +1,220 @@
+components:
+  schemas:
+    # Event Creation Request Schema
+    EventCreationRequest:
+      type: object
+      required: [eventForm]
+      properties:
+        eventForm:
+          type: object
+          required: [timing, location, dietary]
+          properties:
+            timing:
+              type: object
+              required: [eventDate]
+              properties:
+                eventDate:
+                  type: string
+                  format: date-time
+                  description: Date and time of the event
+                  example: "2024-07-15T19:00:00.000Z"
+            location:
+              type: object
+              required: [address]
+              properties:
+                address:
+                  type: string
+                  description: Event address
+                  example: "123 Main Street, Tel Aviv"
+            dietary:
+              type: object
+              required: [isKosher, isVeganFriendly]
+              properties:
+                isKosher:
+                  type: boolean
+                  description: Is the meal kosher
+                  example: true
+                isVeganFriendly:
+                  type: boolean
+                  description: Is the meal vegan-friendly
+                  example: false
+                additionalOptions:
+                  type: array
+                  items:
+                    type: string
+                  description: Additional dietary options available
+                  example: ["gluten-free"]
+
+    # Guest Event Summary (for guest list views of available events)
+    GuestEventSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "683ee3220b4859bd42d033d1"
+        date:
+          type: string
+          format: date-time
+          example: "2024-07-15T19:00:00.000Z"
+        address:
+          type: string
+          example: "123 Main Street, Tel Aviv"
+        availableSpots:
+          type: number
+          example: 5
+        dietary:
+          type: object
+          properties:
+            isKosher:
+              type: boolean
+              example: true
+            isVeganFriendly:
+              type: boolean
+              example: false
+            additionalOptions:
+              type: array
+              items:
+                type: string
+              example: ["gluten-free"]
+
+    # Host Published Event Summary (for host's published events list)
+    HostPublishedEventSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "683ee3220b4859bd42d033d1"
+        date:
+          type: string
+          format: date-time
+          example: "2024-07-15T19:00:00.000Z"
+        status:
+          type: string
+          enum: [open for registration, fully-booked, cancelled, completed]
+          example: "open for registration"
+        participantCount:
+          type: number
+          example: 3
+
+    # Complete Event Detail (full event information for single event views)
+    CompleteEventDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "683ee3220b4859bd42d033d1"
+        timing:
+          type: object
+          properties:
+            eventDate:
+              type: string
+              format: date-time
+              example: "2024-07-15T19:00:00.000Z"
+            createdAt:
+              type: string
+              format: date-time
+              example: "2024-06-15T10:00:00.000Z"
+            lastUpdated:
+              type: string
+              format: date-time
+              example: "2024-06-20T15:30:00.000Z"
+        location:
+          type: object
+          properties:
+            address:
+              type: string
+              example: "123 Main Street, Tel Aviv"
+        dietary:
+          type: object
+          properties:
+            isKosher:
+              type: boolean
+              example: true
+            isVeganFriendly:
+              type: boolean
+              example: false
+            additionalOptions:
+              type: array
+              items:
+                type: string
+              example: ["gluten-free"]
+        status:
+          type: object
+          properties:
+            current:
+              type: string
+              enum: [open for registration, fully-booked, cancelled, completed]
+              example: "open for registration"
+            history:
+              type: array
+              items:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "open for registration"
+                  statusSubmissionDate:
+                    type: string
+                    format: date-time
+                    example: "2024-06-15T10:00:00.000Z"
+        hostUserId:
+          type: string
+          example: "683ee3220b4859bd42d033d0"
+
+    # Event Booking Request (for booking participants to events)
+    EventBookingRequest:
+      type: object
+      required: [bookingForm]
+      properties:
+        bookingForm:
+          type: object
+          required: [guestId, dietaryRestrictions, allergies]
+          properties:
+            guestId:
+              type: string
+              description: Guest user ID
+              example: "683ee3220b4859bd42d033d2"
+            dietaryRestrictions:
+              type: array
+              items:
+                type: string
+                enum: [vegetarian, vegan, kosher, none]
+              minimum: 1
+              description: Guest's dietary restrictions
+              example: ["vegetarian", "kosher"]
+            allergies:
+              type: string
+              description: Guest's allergies (use 'none' if no allergies)
+              example: "Nuts, dairy"
+            plusOne:
+              type: number
+              minimum: 0
+              maximum: 10
+              default: 0
+              description: Number of additional guests
+              example: 1
+            notes:
+              type: string
+              maxLength: 1000
+              description: Additional notes from guest
+              example: "Looking forward to the dinner!"
+
+    # API Error Response (standard error format)
+    APIErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Validation error"
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Event date is required"
+            data:
+              type: object
+              description: Additional error context 

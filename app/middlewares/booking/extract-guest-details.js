@@ -11,15 +11,15 @@ async function extractGuestDetails(req, res, next){
     }
 
     try{
-        const guest = await dbService.findUserByDocId(guestId);
-        if(!guest){
-            return next(new ErrorResponse(404, "Guest not found"));
-        }
+    const guest = await dbService.findUserByDocId(guestId);
+    if(!guest){
+        return next(new ErrorResponse(404, "Guest not found"));
+    }
 
         // Add guest details extracted from User document
-        bookingForm.guestName = guest.firstName + " " + guest.lastName;
-        bookingForm.guestEmail = guest.email;
-        bookingForm.guestPhone = guest.phoneNumber;
+    bookingForm.guestName = guest.firstName + " " + guest.lastName;
+    bookingForm.guestEmail = guest.email;
+    bookingForm.guestPhone = guest.phoneNumber;
         
         // Add timestamp
         bookingForm.registeredAt = new Date();

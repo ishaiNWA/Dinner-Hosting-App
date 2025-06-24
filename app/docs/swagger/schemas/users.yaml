@@ -1,0 +1,58 @@
+components:
+  schemas:
+    # User Profile Schema
+    UserProfile:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "683ee3220b4859bd42d033d1"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        role:
+          type: string
+          enum: ["Guest", "Host"]
+          example: "Guest"
+        isRegistrationComplete:
+          type: boolean
+          example: true
+        phoneNumber:
+          type: string
+          example: "0529876543"
+        address:
+          type: string
+          example: "123 Main Street, Tel Aviv"
+        # Guest-specific fields
+        dietaryRestrictions:
+          type: array
+          items:
+            type: string
+            enum: [vegetarian, vegan, kosher, halal, none]
+          example: ["vegetarian", "kosher"]
+        allergies:
+          type: string
+          example: "Nuts, dairy"
+        upcomingEvents:
+          type: array
+          items:
+            type: string
+          description: Array of event IDs
+          example: ["683ee3220b4859bd42d033d2"]
+        # Host-specific fields  
+        isAuthorizedByManager:
+          type: boolean
+          example: false
+        publishedEvents:
+          type: array
+          items:
+            type: string
+          description: Array of event IDs
+          example: ["683ee3220b4859bd42d033d3"] 

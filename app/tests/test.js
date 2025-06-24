@@ -101,7 +101,7 @@ describe("Auth Routes", () => {
                 .post("/api/auth/complete-registration")
                 .send({ userDataForm })
                 .set('Cookie', cookie);
-
+            
             if (response.status !== 200) {
                 console.log('\nTest Failed Details:');
                 console.log('Response Status:', response.status);
@@ -116,7 +116,7 @@ describe("Auth Routes", () => {
             expect(response.body.user.phoneNumber).toBe(userDataForm.roleDetails.contactDetails.phoneNumber);
             expect(response.body.user.address).toBe(userDataForm.roleDetails.contactDetails.address);
         });
-
+        
         it("should create a valid Host-user with in DB with isRegistrationComplete set to true", async () => {
             const seedUser = await mocFunctions.seedInitialUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
