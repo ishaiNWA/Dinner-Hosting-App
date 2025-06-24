@@ -32,6 +32,7 @@
   - [x] Role-based event filtering (Guests see only open events)
   - [x] Event status filtering for hosts
   - [ ] Filter by location (planned for future)
+  - [ ] Search by geocoding point location (planned for future)
 - [x] Basic testing for each feature
   - [x] Event creation tests
   - [x] Event listing tests  
