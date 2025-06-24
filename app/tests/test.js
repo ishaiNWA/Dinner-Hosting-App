@@ -92,7 +92,7 @@ describe("Auth Routes", () => {
     });
 
     describe("POST /api/auth/complete-registration", () => {
-        it("should create a valid Guest-user with in DB with isRegistrationComplete set to true", async () => {
+        it("should create a valid Guest user in DB with isRegistrationComplete set to true", async () => {
             const seedUser = await mocFunctions.seedInitialUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
             const userDataForm = mocData.mockValidGuestData;
@@ -117,7 +117,7 @@ describe("Auth Routes", () => {
             expect(response.body.user.address).toBe(userDataForm.roleDetails.contactDetails.address);
         });
         
-        it("should create a valid Host-user with in DB with isRegistrationComplete set to true", async () => {
+        it("should create a valid Host user in DB with isRegistrationComplete set to true", async () => {
             const seedUser = await mocFunctions.seedInitialUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
             const userDataForm = mocData.mockValidHostData;
@@ -134,7 +134,7 @@ describe("Auth Routes", () => {
             expect(response.body.user.phoneNumber).toBe(userDataForm.roleDetails.contactDetails.phoneNumber);
         });
 
-        it("should not create an INVALID  Guest-user and return 400 status code", async () => {
+        it("should reject invalid Guest user data and return 400 status code", async () => {
             const seedUser = await mocFunctions.seedInitialUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
             const userDataForm = mocData.mockInvalidGuestData;
@@ -147,7 +147,7 @@ describe("Auth Routes", () => {
             expect(response.status).toBe(400);
         });
 
-        it("should not create an INVALID  Host-user and return 400 status code", async () => {
+        it("should reject invalid Host user data and return 400 status code", async () => {
             const seedUser = await mocFunctions.seedInitialUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
             const userDataForm = mocData.mockInvalidHostData;
@@ -160,7 +160,7 @@ describe("Auth Routes", () => {
             expect(response.status).toBe(400);
         });
 
-        it("sholud try to create a already complete-registered user and return 400 status code", async () => {
+        it("should reject already complete-registered user and return 400 status code", async () => {
             const seedUser = await mocFunctions.seedCompleteUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
             const userDataForm = mocData.mockValidGuestData;
@@ -174,7 +174,7 @@ describe("Auth Routes", () => {
             expect(response.error.text).toContain("User already completed profile");
         });
 
-        it("should try use bad cookie and return 401 status code", async () => {
+        it("should reject request with invalid cookie and return 401 status code", async () => {
             const userDataForm = mocData.mockValidGuestData;
             const cookie = mocFunctions.createBadCookie(userDataForm);
 
@@ -187,7 +187,7 @@ describe("Auth Routes", () => {
             expect(response.error.text).toContain("Unauthorized");
         });
 
-        it("should retrieve user data for getMe route. and after logout should return 401 status code", async () => {
+        it("should retrieve user data for GET /api/user/me route, and after logout should return 401 status code", async () => {
             const seedUser = await mocFunctions.seedCompleteUserInDB();
             const cookie = mocFunctions.createAuthCookieForMockUser(seedUser);
 
@@ -217,7 +217,7 @@ describe("Auth Routes", () => {
     });
 
     describe("/events", () => {
-        it("should return 201 for 3 POST /events creation. and 200 for GET /events with count === 3 ", async () => {
+        it("should return 201 for 3 POST /api/events creation, and 200 for GET /api/events with count === 3", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
@@ -247,7 +247,7 @@ describe("Auth Routes", () => {
             expect(getResponse.body.count).toBe(3);
         });
 
-        it("should return status code 400, and error message of : `You already have an event scheduled for this date`", async () => {
+        it("should return 400 status code with error message: 'You already have an event scheduled for this date'", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
             const duplicateEventArray = mocFunctions.getDuplicateEventArray();
@@ -269,7 +269,7 @@ describe("Auth Routes", () => {
             expect(responses[2].error.text).toContain("You already have an event scheduled for this date");
         });
 
-        it("should create 3 events and query for specific event using all filter parameters", async () => {
+        it("should create 3 events and filter by date, kosher, and vegan-friendly parameters to return single matching event", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
@@ -309,7 +309,7 @@ describe("Auth Routes", () => {
             
         });
 
-        it("GET published - should return amount of published events according to eventStatuses filter", async () => {
+        it("GET /api/events/published - should filter events by status and return correct count based on eventStatuses parameter", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
             const eventArray = mocFunctions.getMockValidEventArray();
@@ -342,7 +342,7 @@ describe("Auth Routes", () => {
             expect(getPublishedResponse.body.count).toBe(2);
             expect(getPublishedResponse.body.data.length).toBe(2);
         });
-        it("GET /published/:eventId - should return 200 and event details if event is found, and 404 if event does not found", async () => {
+        it("GET /api/events/published/{eventId} - should return 200 with event details if found, and 404 if event is not found", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
             const eventArray = mocFunctions.getMockValidEventArray();
@@ -379,7 +379,7 @@ describe("Auth Routes", () => {
 
             expect(getPublishedSingleEventResponse.status).toBe(404);
         });
-        it("should update an event status when proper eventStatuses value is passed",async ()=>{
+        it("PATCH /api/events/published/{eventId} - should update event status to FULLY_BOOKED when proper status value is passed", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
@@ -416,7 +416,7 @@ describe("Auth Routes", () => {
 
 
     describe("/booking", () => {
-        it("should return 201 for POST /booking", async () => {
+        it("POST /api/events/{eventId}/booking - should return 201 and successfully book guest to event", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
@@ -450,7 +450,7 @@ describe("Auth Routes", () => {
             expect(eventDoc.bookedParticipants.length).toBe(1);
             expect(eventDoc.bookedParticipants[0].guestId.toString()).toBe(guestUser._id.toString());
         });
-        it("for POST /booking, should return 400, and error message of: `Guest is already booked for another event in this date`", async () => {
+        it("POST /api/events/{eventId}/booking - should return 400 with error message: 'Guest is already booked for another event on this date'", async () => {
             const firstHostUser = await mocFunctions.seedCompleteHostUserInDB();
             const secondHostUser = await mocFunctions.seedSecondCompleteHostUserInDB();
             const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
@@ -496,7 +496,7 @@ describe("Auth Routes", () => {
             expect(secondBookingResponse.error.text).toContain("Guest is already booked for another event in this date");
                 
         });
-        it("GET /upcoming/  AND DELETE /booking/:guestId - should return 3 booked events berfore DELETE, and 2 after DELETE", async () => {
+        it("GET /api/events/upcoming and DELETE /api/events/{eventId}/booking/{guestId} - should return 3 booked events before DELETE, and 2 after DELETE", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
@@ -562,7 +562,7 @@ describe("Auth Routes", () => {
             expect(getUpcomingEventsResponseAfterDelete.body.data.includes(eventIds[0])).toBe(false);
             
         });
-        it("GET /upcoming/:eventId - should return 200 and event details if event is found, and 404 if event does not found", async () => {
+        it("GET /api/events/upcoming/{eventId} - should return 200 with event details if found, and 404 if event is not found", async () => {
             const hostUser = await mocFunctions.seedCompleteHostUserInDB();
             const guestUser = await mocFunctions.seedCompleteGuestUserInDB();
             const hostCookie = mocFunctions.createAuthCookieForMockUser(hostUser);
