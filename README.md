@@ -12,13 +12,12 @@ This platform facilitates meaningful social connections through shared dinner ev
 
 ### For Hosts
 - Publish dinner events with location ,language and dietary options
-- Chat with potential guests
-- Register soldiers for dinner events
+- Register soldiers for dinner events (after personal phone conversation)
 
 ### For Soldiers (Guests)
 - Search for dinner events based on location and preferences
-- Chat with potential hosts
 - View available dinners and details
+
 
 ### For Managers
 - Verify and authorize users

@@ -51,45 +51,6 @@
 
 ## Phase 2: Frontend Development (July 1 - August 24)
 
-### Weeks 1-2 (July 1-14): Frontend Setup & Learning
-- [ ] Project setup with Create React App
-- [ ] UI framework setup (Material-UI/Chakra UI)
-- [ ] Basic component structure
-- [ ] Authentication UI
-  - [ ] Login page
-  - [ ] Registration flow
-  - [ ] Profile management
-
-### Weeks 3-4 (July 15-28): Host Features
-- [ ] Event Management Interface
-  - [ ] Create event form
-  - [ ] Edit event form
-  - [ ] Delete event functionality
-- [ ] Registration Management
-  - [ ] View registration requests
-  - [ ] Approve/reject interface
-- [ ] Mobile responsive design
-
-### Weeks 5-6 (July 29-August 11): Guest Features
-- [ ] Event Discovery
-  - [ ] Browse events list
-  - [ ] Search/filter interface
-  - [ ] Event details view
-- [ ] Registration Flow
-  - [ ] Request registration
-  - [ ] View registration status
-- [ ] Profile Management
-  - [ ] View/edit profile
-  - [ ] Registration history
-
-### Weeks 7-8 (August 12-24): Integration & Polish
-- [ ] API Integration
-  - [ ] Connect all frontend features to backend
-  - [ ] Error handling
-  - [ ] Loading states
-- [ ] Testing & Bug Fixes
-- [ ] UI/UX Improvements
-- [ ] Deployment
 
 ## Tech Stack
 - Backend:
@@ -100,7 +61,7 @@
   - Jest for testing
 
 - Frontend:
-  - React
+  - React Native
   - Material-UI/Chakra UI
   - Axios
   - React Router
