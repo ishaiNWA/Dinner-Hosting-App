@@ -1,0 +1,1 @@
+// EventModal Component - Event details and management modal 

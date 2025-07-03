@@ -1,0 +1,1 @@
+// Header Component - App header with navigation and user info 
