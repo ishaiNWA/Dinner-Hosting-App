@@ -6,7 +6,6 @@ const {dietaryRestrictionsArray} = require("../../common/dietary-restrictions");
 const mocData = require('./moc-data');
 const {generateJWT} = require("../../utils/jwt")
 
-
 // Mock the passport Google strategy
 function setupGoogleStrategyMock(userIsRegistrationComplete = false) {
     // Mock the authenticate method

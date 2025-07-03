@@ -17,8 +17,9 @@ function generateJWT(user) {
 function extractRawTokenFromRequest(req) {
   if (req.cookies && req.cookies.jwt) {
     return req.cookies.jwt;
-  } else if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-    const authHeader = req.headers.authorization;
+    
+  } else if (req.headers.Authorization && req.headers.Authorization.startsWith("Bearer")) {
+    const authHeader = req.headers.Authorization;
     return authHeader.split("Bearer")[1].trim();
   } else {
     return null;

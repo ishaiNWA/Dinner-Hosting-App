@@ -76,8 +76,7 @@ describe("Auth Routes", () => {
         it("should generate cookie and redirect to appropriate page based on registration status", async () => {
             // Test new user flow
             mocFunctions.setupGoogleStrategyMock(false);
-            let response = await request(app).get("/api/auth/google/callback").send();
-
+            let response = await request(app).get("/api/auth/google/callback?state=web").send();
             expect(response.status).toBe(303);
             expect(response.headers.location).toBe("https://example.com/complete-registration");
             const setCookieHeaderArray = response.headers['set-cookie'];
@@ -85,7 +84,7 @@ describe("Auth Routes", () => {
             expect(setCookieHeaderArray.some(cookie => cookie.includes('jwt'))).toBe(true);
 
             mocFunctions.setupGoogleStrategyMock(true);
-            response = await request(app).get("/api/auth/google/callback").send();
+            response = await request(app).get("/api/auth/google/callback?state=web").send();
             expect(response.status).toBe(303);
             expect(response.headers.location).toBe("https://example.com/dashboard");
         });
