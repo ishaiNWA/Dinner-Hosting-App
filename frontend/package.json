@@ -9,7 +9,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "EXPO_PUBLIC_TESTING_MODE=true expo start",
+    "test:web": "EXPO_PUBLIC_TESTING_MODE=true expo start --web"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

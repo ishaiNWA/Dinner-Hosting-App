@@ -12,6 +12,10 @@ import HostDashboard from '@/components/screens/HostDashboard';
 import CompleteRegistrationScreen from '@/components/screens/CompleteRegistrationScreen';
 import GuestDashboard from '@/components/screens/GuestDashboard';
 import AuthScreen from '@/components/screens/AuthScreen';
+import TestApp from '../TestApp';
+
+// 🧪 TESTING MODE: Controlled by environment variable
+const TESTING_MODE = process.env.EXPO_PUBLIC_TESTING_MODE === 'true';
 
 function NavigationController(){
 
@@ -41,6 +45,16 @@ export default function RootLayout() {
   if (!loaded) {
     // Async font loading only occurs in development.
     return null;
+  }
+
+  // 🧪 TESTING MODE: Show TestApp instead of normal app
+  if (TESTING_MODE) {
+    return (
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <TestApp />
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    );
   }
 
   return (
