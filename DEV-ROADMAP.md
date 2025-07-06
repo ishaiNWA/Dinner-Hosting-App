@@ -52,16 +52,16 @@
 ## Phase 2: Frontend Development (July 1 - August 17)
 
 ### Week 1 (July 1-7): Project Setup & Core Infrastructure
-- [ ] Initialize React Native with Expo CLI
-- [ ] Set up project folder structure with feature-based organization
-- [ ] Configure React Navigation v6 with stack and tab navigators
-- [ ] Set up Context API for global state management (AuthContext, AppContext)
-- [ ] Configure Axios service layer with JWT interceptors
-- [ ] Set up SecureStore for authentication token management
-- [ ] Configure development environment and debugging tools
+- [x] Initialize React Native with Expo CLI
+- [x] Set up project folder structure with feature-based organization
+- [x] Create NavigationController and set app's initial navigation logic
+- [x] Set up Context API for global state management (AuthContext, AppContext)
+- [x] Configure Axios service layer with JWT interceptors
+- [x] Set up SecureStore for authentication token management
+- [x] Configure development environment and debugging tools
 
 ### Week 2 (July 8-14): Design System & Component Library
-- [ ] Choose and configure UI library (NativeBase/React Native Elements)
+- [x] Choose and configure UI library (NativeBase/React Native Elements)
 - [ ] Define design tokens:
   - [ ] Color palette (primary, secondary, success, error, neutral)
   - [ ] Typography scale (headings, body, captions)
@@ -74,21 +74,21 @@
 - [ ] Set up theme provider and dark/light mode support
 
 ### Week 3 (July 15-21): Authentication & Onboarding Flow
-- [ ] **OAuth/Login Screen**
-  - [ ] Google OAuth integration with Expo AuthSession
-  - [ ] Handle JWT token from backend response
-  - [ ] Store JWT using SecureStore
+- [x] **OAuth/Login Screen**
+  - [x] Google OAuth integration with Expo AuthSession
+  - [x] Handle JWT token from backend response
+  - [x] Store JWT using SecureStore
   - [ ] Implement auto-login on app restart
-  - [ ] Error handling for auth failures
-- [ ] **Registration Completion Screen**
-  - [ ] Registraion form (Host/Guest)
+  - [x] Error handling for auth failures
+- [ ] **Registration Completion Screen** ← TODAY'S MISSION
+  - [ ] Registration form (Host/Guest)
   - [ ] Form validation with real-time feedback
   - [ ] Profile photo upload functionality
   - [ ] Submit registration via API
   - [ ] Success feedback and navigation to dashboard
-- [ ] **Auth Context & Navigation Guards**
-  - [ ] Protected route implementation
-  - [ ] Role-based navigation logic
+- [x] **Auth Context & Navigation Guards**
+  - [x] Protected route implementation
+  - [x] Role-based navigation logic
   - [ ] Token refresh handling
 
 ### Week 4 (July 22-28): Host User Flow Implementation
