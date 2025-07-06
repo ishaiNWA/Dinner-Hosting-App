@@ -2,61 +2,141 @@
   get:
     tags: [Authentication]
     summary: Initiates Google OAuth authentication
-    description: Redirects to Google login page
+    description: |
+      Redirects to Google OAuth login page. Supports both web and mobile platforms.
+      - Web: Sets cookies and redirects to web URLs after authentication
+      - Mobile: Redirects to app scheme URLs with authentication data in query parameters
+    parameters:
+      - in: query
+        name: platform
+        schema:
+          type: string
+          enum: [web, mobile]
+          default: web
+        description: |
+          Platform type for authentication flow:
+          - `web`: Returns cookies and redirects to web URLs
+          - `mobile`: Redirects to app scheme with data in URL parameters
+        example: mobile
     responses:
       302:
-        description: Redirects to Google authentication
+        description: Redirects to Google OAuth authentication page
+        headers:
+          Location:
+            schema:
+              type: string
+              example: "https://accounts.google.com/o/oauth2/v2/auth?client_id=...&state=mobile"
+      400:
+        description: Invalid platform parameter
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Invalid platform. Valid platforms are: web, mobile"
 
 /api/auth/google/callback:
   get:
     tags: [Authentication]
     summary: Google OAuth callback endpoint
     description: |
-      Handles the callback from Google OAuth. This endpoint is called by Google after successful authentication.
-      - For new users: Redirects to complete-registration page
-      - For existing users: Redirects to dashboard
+      Handles the callback from Google OAuth. Behavior differs based on platform:
+      
+      **Web Platform (state=web):**
+      - Sets HTTP-only JWT cookie
+      - Returns 303 redirects to web URLs
+      - New users → complete-registration page
+      - Existing users → dashboard page
+      
+      **Mobile Platform (state=mobile):**
+      - Returns 302 redirects to app scheme URLs
+      - Authentication data encoded in URL query parameters
+      - No cookies (mobile apps handle token storage locally)
+      
+      This endpoint is automatically called by Google after successful OAuth authentication.
     parameters:
       - in: query
         name: code
         schema:
           type: string
-        description: Authorization code from Google (automatically handled by OAuth flow)
+        description: Authorization code from Google (automatically provided by OAuth flow)
+        example: "4/0AY0e-g7..."
       - in: query
         name: state
         schema:
           type: string
-        description: State parameter for security (automatically handled by OAuth flow)
+          enum: [web, mobile]
+        description: |
+          Platform identifier passed back from Google OAuth.
+          Determines response format and redirect behavior.
+        example: "mobile"
     responses:
       303:
-        description: Redirect based on user status
+        description: Web platform redirect with cookie authentication
         headers:
           Set-Cookie:
             schema:
               type: string
-              example: "jwt=xyz...; HttpOnly; Secure; SameSite=Strict"
+              example: "jwt=eyJhbGciOiJIUzI1NiIs...; HttpOnly; Secure; SameSite=Lax; Max-Age=86400"
+            description: JWT token for web authentication
           Location:
             schema:
               type: string
-              examples:
-                newUser:
-                  value: "https://example.com/complete-registration"
-                  description: "For new users who need to complete registration"
-                existingUser:
-                  value: "https://example.com/dashboard"
-                  description: "For existing users with completed registration"
-      401:
-        description: Authentication failed
-        content:
-          application/json:
+            description: Redirect URL based on user registration status
+            examples:
+              newUser:
+                value: "https://example.com/complete-registration"
+                summary: "New user needing registration completion"
+              existingUser:
+                value: "https://example.com/dashboard"
+                summary: "Existing user with completed registration"
+      302:
+        description: Mobile platform redirect with data in URL parameters
+        headers:
+          Location:
             schema:
-              type: object
-              properties:
-                successStatus:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: "Authentication failed"
+              type: string
+            description: App scheme URL with authentication data
+            examples:
+              mobileSuccess:
+                value: "exp://localhost:19000/--/auth/result?token=eyJhbGciOiJIUzI1NiIs...&user=%7B%22_id%22%3A%22...%22%7D&isRegistrationComplete=true"
+                summary: "Successful mobile authentication with encoded user data"
+              mobileError:
+                value: "exp://localhost:19000/--/auth/error?error=Authentication%20failed"
+                summary: "Mobile authentication error"
+        content:
+          text/plain:
+            schema:
+              type: string
+              description: |
+                Mobile redirect URL structure:
+                - `token`: JWT authentication token
+                - `user`: URL-encoded JSON user object containing _id, firstName, lastName, email, role, isRegistrationComplete
+                - `isRegistrationComplete`: Boolean indicating if user needs to complete registration
+              example: |
+                Success URL parameters:
+                - token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                - user: "%7B%22_id%22%3A%22683ee3220b4859bd42d033d1%22%2C%22firstName%22%3A%22John%22%2C%22lastName%22%3A%22Doe%22%2C%22email%22%3A%22john%40example.com%22%2C%22role%22%3A%22Guest%22%2C%22isRegistrationComplete%22%3Atrue%7D"
+                - isRegistrationComplete: "true"
+                
+                Error URL parameters:
+                - error: "Authentication%20failed"
+      401:
+        description: Authentication failed (both platforms)
+        content:
+          text/plain:
+            schema:
+              type: string
+              description: Redirect to error page/URL with error message
+            examples:
+              webError:
+                value: "https://example.com/auth-error?reason=OAuth%20authentication%20failed"
+                summary: "Web platform error redirect"
+              mobileError:
+                value: "exp://localhost:19000/--/auth/error?error=OAuth%20authentication%20failed"
+                summary: "Mobile platform error redirect"
 
 /api/auth/complete-registration:
   post:

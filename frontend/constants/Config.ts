@@ -1,5 +1,15 @@
 import Constants from 'expo-constants';
 
+
+const mandatoryEnvVars = ['EXPO_PUBLIC_API_URL'];
+
+mandatoryEnvVars.forEach(envVar => {
+  if (!process.env[envVar]) {
+    throw new Error(`Missing environment variable: ${envVar}`);
+  }
+});
+
+
 // HTTP Methods enum for type safety
 export enum HttpMethod {
   GET = 'GET',
@@ -19,7 +29,7 @@ export enum Platform {
 const ENV = {
   dev: {
     PLATFORM: Platform.MOBILE,  // Fixed: Added PLATFORM to all environments
-    API_URL: 'http://localhost:5000',
+    API_URL: 'https://68eb-5-28-189-141.ngrok-free.app',  // Use local network IP instead of localhost for mobile
     API_TIMEOUT: 10000, // 10 seconds
     DEBUG: true,
   },
@@ -69,7 +79,7 @@ export const Config = {
   USER_STORAGE_KEY: 'dinner_app_user_data',
   
   // OAuth Configuration
-  OAUTH_LOGIN_URL: `${selectedENV.API_URL}/auth/google?platform=mobile`,
+  OAUTH_LOGIN_URL: `${selectedENV.API_URL}/api/auth/google?platform=mobile`,
   OAUTH_REDIRECT_URL: 'exp://localhost:19000',
   
   // API Endpoints (relative to API_URL)
