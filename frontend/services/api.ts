@@ -17,8 +17,10 @@ apiClient.interceptors.request.use(async (config) => {
     // 1.1. get the jwt token from the local storage
     const token = await SecureStore.getItemAsync(Config.JWT_STORAGE_KEY);
     // Add to every request header automatically
+    console.log(`this is the token: ${token}`)
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.authorization = `Bearer ${token}`;
+        console.log(`sent headers:${JSON.stringify(config.headers)}`)
     }
     
     // Add platform to Query params for mobile platform

@@ -41,7 +41,7 @@
               type: array
               items:
                 type: string
-                enum: [vegetarian, vegan, kosher, halal, none]
+                enum: [vegetarian, vegan, kosher, none]
             allergies:
               type: string
               default: 'none'

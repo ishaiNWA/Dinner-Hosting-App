@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { SocialIcon } from 'react-native-elements';
 
-export default function AuthScreen() {
+export default function Auth() {
   const { googleLoginCoordinator, isLoading, error } = useAuthContext();
 
   const handleGoogleLogin = async () => {

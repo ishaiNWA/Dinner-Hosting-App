@@ -3,17 +3,18 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
 // Import screens you want to test
-import CompleteRegistrationScreen from '@/components/screens/CompleteRegistrationScreen';
-import AuthScreen from '@/components/screens/AuthScreen';
-import HostDashboard from '@/components/screens/HostDashboard';
-import GuestDashboard from '@/components/screens/GuestDashboard';
+import CompleteRegistration from '@/app/CompleteRegistration';
+import Auth from '@/app/Auth';
+import HostDashboard from '@/app/HostDashboard';
+import GuestDashboard from '@/app/GuestDashboard';
+import HostRegistration from '@/app/HostRegistration';
 
 export default function TestApp() {
   
   // 🎯 CHANGE THIS TO TEST DIFFERENT COMPONENTS
   // Simply uncomment the component you want to test:
   
-  return <CompleteRegistrationScreen />;
+  return <HostRegistration />;
   // return <AuthScreen />;
   // return <HostDashboard />;
   // return <GuestDashboard />;

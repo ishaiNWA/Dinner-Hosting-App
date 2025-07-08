@@ -2,10 +2,9 @@
 
 // User Roles (matches backend user-roles.js)
 export enum UserRole {
-  HOST = 'host',
-  GUEST = 'guest',
+  HOST = 'Host',
+  GUEST = 'Guest',
 }
-
 
 export interface User {
   _id: string;                    // MongoDB ID

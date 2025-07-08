@@ -1,9 +1,13 @@
 // Authentication API calls - login, register, logout 
 
-import { Config } from "@/constants/Config";
+import { Config, HttpMethod } from "@/constants/Config";
 import * as WebBrowser from 'expo-web-browser'; // package for oauth 
 import * as Linking from 'expo-linking';
 import { User } from "@/types/auth";
+import { apiRequest } from "./api";
+import { Alert } from "react-native";
+
+const {ENDPOINTS} = Config;
 
 export async function googleLogin() {
     try {
@@ -44,6 +48,19 @@ export async function googleLogin() {
 
     } catch (error: any) {
         console.error('OAuth failed:', error);
+        return { error: error.message };
+    }
+}
+
+
+export async function completeRegistration(requestBody: any){
+    try {
+        console.log(`this is the url: ${ENDPOINTS.AUTH.COMPLETE_REGISTRATION}`)
+        Alert.alert(`this is the url: ${ENDPOINTS.AUTH.COMPLETE_REGISTRATION}`)
+        const response = await apiRequest(HttpMethod.POST, ENDPOINTS.AUTH.COMPLETE_REGISTRATION, requestBody);
+        return response.data;
+    } catch (error: any) {
+        console.error('Complete registration failed:', error);
         return { error: error.message };
     }
 }

@@ -15,15 +15,18 @@ function generateJWT(user) {
 }
 
 function extractRawTokenFromRequest(req) {
+  console.log(`this is the headers: ${JSON.stringify(req.headers)}`)
   if (req.cookies && req.cookies.jwt) {
     return req.cookies.jwt;
-    
-  } else if (req.headers.Authorization && req.headers.Authorization.startsWith("Bearer")) {
-    const authHeader = req.headers.Authorization;
-    return authHeader.split("Bearer")[1].trim();
-  } else {
-    return null;
   }
+  
+  // Check both cases to be safe
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.substring(7); // Remove "Bearer " (7 characters)
+  }
+  
+  return null;
 }
 
 module.exports = {

@@ -29,7 +29,7 @@ export enum Platform {
 const ENV = {
   dev: {
     PLATFORM: Platform.MOBILE,  // Fixed: Added PLATFORM to all environments
-    API_URL: 'https://68eb-5-28-189-141.ngrok-free.app',  // Use local network IP instead of localhost for mobile
+    API_URL: process.env.EXPO_PUBLIC_API_URL,  // Use local network IP instead of localhost for mobile
     API_TIMEOUT: 10000, // 10 seconds
     DEBUG: true,
   },
@@ -86,11 +86,7 @@ export const Config = {
   ENDPOINTS: {
     // Authentication
     AUTH: {
-      LOGIN: '/auth/google',
-      REGISTER: '/auth/register',
-      LOGOUT: '/auth/logout',
-      REFRESH: '/auth/refresh',
-      ME: '/auth/me',
+      COMPLETE_REGISTRATION: `${selectedENV.API_URL}/api/auth/complete-registration`,
     },
     
     // Events

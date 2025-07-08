@@ -1,8 +1,26 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { UserRole } from '@/types/auth';
-import { useState } from 'react';
+import { router } from 'expo-router';
 
-export default function CompleteRegistrationScreen() {
+
+
+export default function CompleteRegistration() {
+
+
+  const navigationPress = (role :UserRole)=>{
+    console.log('Button pressed for role:', role);
+    Alert.alert('Navigation pressed!!!', `Role: ${role}`);
+
+    if(role === UserRole.HOST){
+      console.log('Navigating to Host screen...');
+      router.push('/HostRegistration');
+    } else if(role === UserRole.GUEST){
+      console.log('Navigating to Guest screen...');
+      router.push('/GuestRegistration');
+    } else {
+      Alert.alert('Invalid role');
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -21,7 +39,7 @@ export default function CompleteRegistrationScreen() {
           </Text>
           <TouchableOpacity 
             style={styles.button} 
-            onPress={() => console.log('Host selected')}
+            onPress={() => navigationPress(UserRole.HOST)}
           >
             <Text style={styles.buttonText}>Continue as Host</Text>
           </TouchableOpacity>
@@ -39,7 +57,7 @@ export default function CompleteRegistrationScreen() {
           </Text>
           <TouchableOpacity 
             style={styles.button} 
-            onPress={() => console.log('Guest selected')}
+            onPress={() => navigationPress(UserRole.GUEST)}
           >
             <Text style={styles.buttonText}>Continue as Guest</Text>
           </TouchableOpacity>
@@ -54,7 +72,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e8f4fd',
+    backgroundColor: '#d4a5a5',
     padding: 20,
   },
   title: {
