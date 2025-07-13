@@ -75,7 +75,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
                     const { user, isRegistrationComplete } = params
                     try {
                         await setAuthResponse(user, isRegistrationComplete)
-                        router.replace('/') // what is this ??? 
+                        router.replace('/') 
                     } catch (error: any) {
                         setError(error.message);
                     } finally {
@@ -88,6 +88,33 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
         handleWebAuth()
     }, [])
     
+    useEffect(() => {
+        const handleUnAuthHandler = async () => {
+            let isUnauthorized = false;
+            
+            if (Platform.OS === 'web') {
+                isUnauthorized = localStorage.getItem('isUnAuthUser') === 'true';
+                if (isUnauthorized) {
+                    localStorage.removeItem('isUnAuthUser');
+                }
+            } else {
+                const unAuthFlag = await SecureStore.getItemAsync('isUnAuthUser');
+                isUnauthorized = unAuthFlag === 'true';
+                if (isUnauthorized) {
+                    await SecureStore.deleteItemAsync('isUnAuthUser');
+                }
+            }
+            
+            if (isUnauthorized) {
+                setIsLoggedIn(false);
+                setUser(null);
+                setIsRegistrationComplete(false);
+                setUserRole(null);
+                router.replace('/');
+            }
+        }
+        handleUnAuthHandler()
+    }, [])
 
 
     const setAuthResponse = async ( user: User, isRegistrationComplete: boolean , token: string = '') => {

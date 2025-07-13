@@ -4,6 +4,7 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { Config, HttpMethod } from '../constants/Config';
+import { router } from 'expo-router';
 
 const apiClient = axios.create({
     baseURL: Config.API_URL,
@@ -37,13 +38,23 @@ apiClient.interceptors.request.use(async (config) => {
 
 // 2. RESPONSE INTERCEPTOR  
 apiClient.interceptors.response.use(
-
+    // Success handler
+    async (response) => {
+      return response;
+    },
+    // Error handler
     async (error: any) => {
       // Handle token expiration
       if (error.response?.status === 401) {
-        // TODO : Token expired - redirect to login
-        await SecureStore.deleteItemAsync(Config.JWT_STORAGE_KEY);
-        // TODO : Navigate to login screen (will be implemented with navigation context)
+        // Platform-specific unauthorized handling
+        if (Platform.OS === 'web') {
+          localStorage.setItem('isUnAuthUser', 'true');
+        } else {
+          // For mobile, clear the stored token and set flag in a way that works
+          await SecureStore.deleteItemAsync(Config.JWT_STORAGE_KEY);
+          // For mobile, we could use SecureStore to set the flag
+          await SecureStore.setItemAsync('isUnAuthUser', 'true');
+        }
       }
       throw error;
     }
