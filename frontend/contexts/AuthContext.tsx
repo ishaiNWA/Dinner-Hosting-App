@@ -68,6 +68,10 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
     useEffect(() => {
         const handleWebAuth = async () => {
             if (Platform.OS === 'web' && localStorage.getItem('isWebAuthInProgress')) {
+                // Debug: Check if JWT cookie exists
+                console.log('All cookies:', document.cookie);
+                console.log('JWT cookie exists:', document.cookie.includes('jwt='));
+                
                 const params = extractWebAuthResult()
                 if (!params || 'error' in params) {
                    return setError('Invalid OAuth response - missing required parameters')

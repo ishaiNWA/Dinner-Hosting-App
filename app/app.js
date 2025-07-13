@@ -10,18 +10,26 @@ const session = require("express-session");
 const passport = require("passport");
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger-config');
-
+const cors = require('cors');
 require("./services/passport-auth-service"); // configures passport strategies
 
 const authRoute = require("./routes/auth-route");
 const userRoute = require("./routes/user-route");
 const eventRoute = require("./routes/event-route");
 
+
+
+
 // Middleware
 app.use(morgan("dev")); // HTTP request logger middleware
 app.use(cookieParser()); // parse cookies from the HTTP headers
 app.use(express.json()); // parse incoming JSON payloads (application/json)
 app.use(express.urlencoded({ extended: true })); // parse URL-encoded data (form submissions)
+
+app.use(cors({
+  origin: 'http://localhost:8081',
+  credentials: true  // Backend tells browser: "Cookies OK"
+}));
 
 app.use(
   session({

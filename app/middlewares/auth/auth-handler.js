@@ -34,12 +34,19 @@ const googleAuthHandler = async (req, res, next) => {
       const cookieOptions = {
         expires: new Date(Date.now() + ONE_DAY_IN_MS),
         httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax' // for CSRF protection
+        secure: true, //always true when using ngrok server
+        sameSite: 'none',  // Required for cross-origin cookies
+        domain: undefined  // Let browser handle domain
       };
 
       res.cookie('jwt', token, cookieOptions);
 
+      // Debug cookie setting properly
+      logger.info(`Setting JWT cookie for user ${user.id}`);
+      logger.info(`Token: ${token}`);
+      logger.info(`Cookie options: ${JSON.stringify(cookieOptions)}`);
+      logger.info(`Cookie set successfully`);
+      
       const successRedirect = buildWebSuccessRedirect(user, user.isRegistrationComplete); 
       logger.info(`Redirecting new user (${user.id}) to complete registration`);
       logger.info(`Complete registration url: ${successRedirect}`);

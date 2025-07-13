@@ -26,6 +26,8 @@ apiClient.interceptors.request.use(async (config) => {
         config.headers.authorization = `Bearer ${token}`;
         console.log(`sent headers:${JSON.stringify(config.headers)}`)
     }
+    }else{
+      config.withCredentials = true;
     }
     
     // Add platform to Query params 
