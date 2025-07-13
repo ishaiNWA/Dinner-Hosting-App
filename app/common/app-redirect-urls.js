@@ -1,8 +1,7 @@
 const appRedirectUrls = Object.freeze({
     // Web URLs
     WEB: {
-      COMPLETE_REGISTRATION: 'https://example.com/complete-registration',
-      DASHBOARD: 'https://example.com/dashboard',
+      SUCCESS: 'http://localhost:8081/',
       ERROR: (err) => `https://example.com/auth-error?reason=${encodeURIComponent(err)}`
     },
     

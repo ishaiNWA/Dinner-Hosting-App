@@ -1,10 +1,13 @@
 // Authentication Context - user login state and auth logic 
 
-import { createContext, useState, useContext } from "react"
-import {googleLogin} from "@/services/auth"
+import { createContext, useState, useContext, useEffect } from "react"
+import {extractWebAuthResult, googleLogin} from "@/services/auth"
 import { User, UserRole } from "@/types/auth"
 import { Config } from "@/constants/Config"
 import * as SecureStore from 'expo-secure-store';
+import { Alert } from "react-native";
+import { router } from "expo-router";
+import { Platform } from "react-native";
 
 // AuthContext type
 interface AuthContextType {
@@ -37,21 +40,68 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
         
         try {
             const result = await googleLogin();
+
+            Alert.alert("I'M BACK!!!");
+            console.log("I'M BACK!!!");
+            
+            // First check if result exists
+            if (!result) {
+                setError('No response from Google login');
+                return;
+            }
+            
             if('error' in result){
                 setError(result.error);
             } else {
                 const {token, user, isRegistrationComplete} = result;
-                setUser(user);
-                await SecureStore.setItemAsync(Config.JWT_STORAGE_KEY, token);
-                setUserRole(user.role);
-                setIsLoggedIn(true);
-                setIsRegistrationComplete(isRegistrationComplete);
+               await setAuthResponse(user, isRegistrationComplete, token)
+
             }
         } catch (error: any) {
             setError(error.message);
         } finally {
             setIsLoading(false); // Always runs, whether success or error
         }
+
+    }
+
+    useEffect(() => {
+        const handleWebAuth = async () => {
+            if (Platform.OS === 'web' && localStorage.getItem('isWebAuthInProgress')) {
+                const params = extractWebAuthResult()
+                if (!params || 'error' in params) {
+                   return setError('Invalid OAuth response - missing required parameters')
+                } else {
+                    const { user, isRegistrationComplete } = params
+                    try {
+                        await setAuthResponse(user, isRegistrationComplete)
+                        router.replace('/') // what is this ??? 
+                    } catch (error: any) {
+                        setError(error.message);
+                    } finally {
+                        setIsLoading(false);
+                    }
+                }
+            }
+        }
+    
+        handleWebAuth()
+    }, [])
+    
+
+
+    const setAuthResponse = async ( user: User, isRegistrationComplete: boolean , token: string = '') => {
+        setUser(user);
+        
+        // Only store token manually on mobile platforms
+        // Web uses httpOnly cookies set by backend
+        if (Platform.OS !== 'web') {
+            await SecureStore.setItemAsync(Config.JWT_STORAGE_KEY, token);
+        }
+        
+        setUserRole(user.role);
+        setIsLoggedIn(true);
+        setIsRegistrationComplete(isRegistrationComplete);
     }
 
     // TODO:: add logout function

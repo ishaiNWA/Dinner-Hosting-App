@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 
 
+
 const mandatoryEnvVars = ['EXPO_PUBLIC_API_URL'];
 
 mandatoryEnvVars.forEach(envVar => {
@@ -19,28 +20,19 @@ export enum HttpMethod {
   PATCH = 'PATCH',
 }
 
-// Platform enum for type safety
-export enum Platform {
-  WEB = 'web',
-  MOBILE = 'mobile',
-}
-
 // Environment detection
 const ENV = {
   dev: {
-    PLATFORM: Platform.MOBILE,  // Fixed: Added PLATFORM to all environments
     API_URL: process.env.EXPO_PUBLIC_API_URL,  // Use local network IP instead of localhost for mobile
     API_TIMEOUT: 10000, // 10 seconds
     DEBUG: true,
   },
   staging: {
-    PLATFORM: Platform.MOBILE,  // Fixed: Added PLATFORM
     API_URL: 'https://your-staging-api.com', // Replace when you have staging
     API_TIMEOUT: 15000,
     DEBUG: true,
   },
   prod: {
-    PLATFORM: Platform.MOBILE,  // Fixed: Added PLATFORM
     API_URL: 'https://your-production-api.com', // Replace when you deploy
     API_TIMEOUT: 15000,
     DEBUG: false,
@@ -67,7 +59,6 @@ export const Config = {
   API_URL: selectedENV.API_URL,
   API_TIMEOUT: selectedENV.API_TIMEOUT,
   DEBUG: selectedENV.DEBUG,
-  PLATFORM: selectedENV.PLATFORM,
   
 
   // App Information
@@ -79,7 +70,7 @@ export const Config = {
   USER_STORAGE_KEY: 'dinner_app_user_data',
   
   // OAuth Configuration
-  OAUTH_LOGIN_URL: `${selectedENV.API_URL}/api/auth/google?platform=mobile`,
+  OAUTH_LOGIN_URL: `${selectedENV.API_URL}/api/auth/google`,
   OAUTH_REDIRECT_URL: 'exp://localhost:19000',
   
   // API Endpoints (relative to API_URL)

@@ -6,7 +6,7 @@ const ONE_DAY_IN_MS = ONE_DAY_IN_SECONDS * 1000;
 
 const logger = require("../../utils/logger");
 const platforms = require("../../common/platforms");
-const {buildMobileSuccessRedirect, buildMobileErrorRedirect} = require("../../services/auth-redirect-builder");
+const {buildMobileSuccessRedirect, buildMobileErrorRedirect, buildWebSuccessRedirect} = require("../../services/auth-redirect-builder");
 const {appRedirectUrls} = require("../../common/app-redirect-urls");
 const googleAuthHandler = async (req, res, next) => {
 
@@ -40,19 +40,16 @@ const googleAuthHandler = async (req, res, next) => {
 
       res.cookie('jwt', token, cookieOptions);
 
-
-      if (!user.isRegistrationComplete) {
-        logger.info(`Redirecting new user (${user.id}) to complete registration`);
-        return res.redirect(303, appRedirectUrls.WEB.COMPLETE_REGISTRATION);
-      }
-
-      //redirect to dashboard
-      return res.redirect(303, appRedirectUrls.WEB.DASHBOARD);
-
+      const successRedirect = buildWebSuccessRedirect(user, user.isRegistrationComplete); 
+      logger.info(`Redirecting new user (${user.id}) to complete registration`);
+      logger.info(`Complete registration url: ${successRedirect}`);
+      return res.redirect(303, successRedirect);
+        
     } else {
       // Mobile: Redirect to app with auth data
       const successRedirect = buildMobileSuccessRedirect(token, user, user.isRegistrationComplete); 
       logger.info(`Redirecting mobile user (${user.id}) to app with auth data`);
+      logger.info(`Success redirect url: ${successRedirect}`);
       return res.redirect(successRedirect);
     }
 

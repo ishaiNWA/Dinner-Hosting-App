@@ -1,6 +1,9 @@
+
 const platforms = Object.freeze({
     WEB: 'web',
-    MOBILE: 'mobile'
+    MOBILE: 'mobile',
+    IOS: 'ios',
+    ANDROID: 'android',
 });
 
 module.exports = platforms;

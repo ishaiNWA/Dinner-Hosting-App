@@ -30,6 +30,7 @@ const completeProfile = async (req, res, next) => {
         return next(new ErrorResponse(500, 'Internal server error while updating user'));
     }
     console.log(`newUpdatedUser is : ${JSON.stringify(newUpdatedUser, null, 2)}`);
+    logger.info(`newUpdatedUser is : ${JSON.stringify(newUpdatedUser, null, 2)}`);
     res.status(200).json({
         message: "User completed registration successfully",
         user: newUpdatedUser
