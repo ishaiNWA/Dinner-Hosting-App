@@ -33,6 +33,9 @@ env.GOOGLE_OAUTH_CLIENT_SECRET = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
 env.GOOGLE_OAUTH_CALLBACK_URL = process.env.GOOGLE_OAUTH_CALLBACK_URL || `http://localhost:${env.PORT}/api/auth/google/callback`;
 
 
+//front end origin
+env.WEB_PLATFORM_ORIGIN = process.env.WEB_PLATFORM_ORIGIN || 'http://localhost:8081';
+
 //Geo Coder related vars
 env.GEOCODER_PROVIDER = process.env.GEOCODER_PROVIDER || 'opencage'
 env.GEOCODER_API_KEY= process.env.GEOCODER_API_KEY;

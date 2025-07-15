@@ -46,19 +46,25 @@ apiClient.interceptors.response.use(
     },
     // Error handler
     async (error: any) => {
+      console.log(`ERROR !!!!!`)
+      
+      // Get status from multiple possible locations
+      const status = error.status || error.response?.status || error.code;
+      
       // Handle token expiration
-      if (error.response?.status === 401) {
+      if (status === 401) {
+        console.log(`401 ERROR !!!!!`)
         // Platform-specific unauthorized handling
         if (Platform.OS === 'web') {
           localStorage.setItem('isUnAuthUser', 'true');
         } else {
-          // For mobile, clear the stored token and set flag in a way that works
+          // For mobile, clear the stored token and set flag
           await SecureStore.deleteItemAsync(Config.JWT_STORAGE_KEY);
-          // For mobile, we could use SecureStore to set the flag
           await SecureStore.setItemAsync('isUnAuthUser', 'true');
         }
+        router.replace('/')
       }
-      throw error;
+      
     }
 );
 

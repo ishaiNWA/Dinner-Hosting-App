@@ -1,4 +1,6 @@
 const passport = require('passport');
+const fs = require('fs');
+const path = require('path');
 const jwt = require("../../utils/jwt");
 const env = require("../../config/env");
 const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
@@ -8,6 +10,11 @@ const logger = require("../../utils/logger");
 const platforms = require("../../common/platforms");
 const {buildMobileSuccessRedirect, buildMobileErrorRedirect, buildWebSuccessRedirect} = require("../../services/auth-redirect-builder");
 const {appRedirectUrls} = require("../../common/app-redirect-urls");
+const Handlebars = require('handlebars');
+const webOauthSuccessTemplate = fs.readFileSync(path.join(__dirname, `../../views/web-platform-oauth-success.html`), 'utf8');
+const webOauthSuccessTemplateCompiled = Handlebars.compile(webOauthSuccessTemplate);
+
+
 const googleAuthHandler = async (req, res, next) => {
 
   //state is a query param that is passed to the google auth handler and returned in the callback
@@ -30,6 +37,7 @@ const googleAuthHandler = async (req, res, next) => {
     
     const token = jwt.generateJWT(user);
 
+    //ONE_DAY_IN_MS
     if (platform === platforms.WEB) {
       const cookieOptions = {
         expires: new Date(Date.now() + ONE_DAY_IN_MS),
@@ -48,9 +56,16 @@ const googleAuthHandler = async (req, res, next) => {
       logger.info(`Cookie set successfully`);
       
       const successRedirect = buildWebSuccessRedirect(user, user.isRegistrationComplete); 
-      logger.info(`Redirecting new user (${user.id}) to complete registration`);
-      logger.info(`Complete registration url: ${successRedirect}`);
-      return res.redirect(303, successRedirect);
+      const origin = req.query.origin || env.WEB_PLATFORM_ORIGIN;
+      const renderedTemplate = webOauthSuccessTemplateCompiled({
+        USER_JSON: JSON.stringify(user),
+        IS_REGISTRATION_COMPLETE: user.isRegistrationComplete,
+        ORIGIN: origin
+      }
+      
+    ); 
+
+      return res.status(200).send(renderedTemplate);
         
     } else {
       // Mobile: Redirect to app with auth data

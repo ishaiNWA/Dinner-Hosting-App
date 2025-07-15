@@ -8,6 +8,7 @@ const errorHandler = (err, req, res, next) => {
     console.log('\nError Handler Caught:');
     console.log('Error Message:', err.message);
     console.log('Error Stack:', err.stack);
+
     if (err.errors) {
       console.log('Validation Errors:', JSON.stringify(err.errors, null, 2));
     }

@@ -58,6 +58,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 404 handler
 app.use((req, res, next) => {
+
+  if (req.url === '/favicon.ico') {
+    return res.status(204).end(); // No content
+  }
   next(new ErrorResponse(404, "Route not found"));
 });
 
