@@ -1,7 +1,7 @@
 // Authentication TypeScript types - User, LoginRequest, RegisterRequest, etc. 
 
 // User Roles (matches backend user-roles.js)
-export enum UserRole {
+export enum UserRoles {
   HOST = 'Host',
   GUEST = 'Guest',
 }
@@ -12,7 +12,7 @@ export interface User {
   lastName: string;               // From Google family_name  
   email: string;                  // From Google email
   isRegistrationComplete: boolean; // Database field
-  role: UserRole | null;
+  role: UserRoles | null;
 }
 
 export interface AuthResponse {

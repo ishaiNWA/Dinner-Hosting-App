@@ -7,6 +7,8 @@ const ALLOWED_ORIGINS = [
 ];
 
 export async function handleWebGoogleLogin() {
+
+  console.log('Config.OAUTH_LOGIN_URL is:', Config.OAUTH_LOGIN_URL);
     // Return a Promise so we can await this function
     return new Promise((resolve, reject) => {
       let isAuthSuccess = false;

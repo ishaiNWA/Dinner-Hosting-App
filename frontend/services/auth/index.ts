@@ -30,13 +30,21 @@ export async function googleLogin() {
 
 export async function completeRegistration(requestBody: any) {
     try {
-        console.log(`this is the url: ${ENDPOINTS.AUTH.COMPLETE_REGISTRATION}`)
-        Alert.alert(`this is the url: ${ENDPOINTS.AUTH.COMPLETE_REGISTRATION}`)
         const response = await apiRequest(HttpMethod.POST, ENDPOINTS.AUTH.COMPLETE_REGISTRATION, requestBody);
 
         console.log(`this is the response: ${JSON.stringify(response, null, 2)}`)
         return response.data;
     } catch (error: any) {
-        return { error: error.message };
+        console.log('THROWN ERROR!!', error);
+        return error;
     }
 } 
+
+export async function logout() {
+    try {
+        const response = await apiRequest(HttpMethod.POST, ENDPOINTS.AUTH.LOGOUT, null);
+        return response.data;
+    } catch (error: any) {
+        return { error: error.message };
+    }
+}

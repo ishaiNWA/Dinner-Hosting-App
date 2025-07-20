@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { UserRole } from "@/types/auth";
+import { UserRoles } from "@/types/auth";
 import { completeRegistration } from '@/services/auth';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 const buildHostCompleteRegistrationBody = (phoneNumber: string, address: string) => {
   return JSON.stringify({
     userDataForm: {
-      role: UserRole.HOST,
+      role: UserRoles.HOST,
       roleDetails: {
         contactDetails: {
           phoneNumber,
@@ -19,6 +20,9 @@ const buildHostCompleteRegistrationBody = (phoneNumber: string, address: string)
 };
 
 export default function HostRegistration() {
+
+  const {completeRegistrationCoordinator} = useAuthContext();
+  
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
 
@@ -73,27 +77,18 @@ export default function HostRegistration() {
     try{
     setIsSubmitting(true);
     const hostCompleteRegistration = buildHostCompleteRegistrationBody(phoneNumber, address);
-    console.log('Host complete registration:', hostCompleteRegistration);
 
-    const response = await completeRegistration(hostCompleteRegistration);
-    console.log('Response:', response);
-    if (response.error) {
-      if(response.status === 500){
-        Alert.alert('Error', 'Internal error, please try again later');
-      }else if(response.status === 401){
-        Alert.alert('Error', 'Unauthorized, please login again');
-        router.push('/Auth');
-      }else{
-        Alert.alert('Error', response.error);
-      }
-    } else {
-      Alert.alert('Success', 'Registration completed successfully');
+    const response: any = await completeRegistrationCoordinator(hostCompleteRegistration);
+    if(response.success){
       router.push('/HostDashboard');
+    }else{
+      return response.error;
     }
-  }catch(error){
-    console.log('Error:', error);
-  }finally{
-    setIsSubmitting(false);
+  
+    }catch(error){
+      console.log('Error:', error);
+    }finally{
+      setIsSubmitting(false);
   }
   };
 

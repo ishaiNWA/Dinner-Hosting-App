@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, Platform, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, Modal, FlatList, Button, Alert } from 'react-native';
-import { UserRole } from "@/types/auth";
+import { UserRoles } from "@/types/auth";
 import { DIETARY_RESTRICTIONS, DietaryRestrictionType } from '@/constants/dietaryRestrictions';
 import { router } from 'expo-router';
-import { completeRegistration } from '@/services/auth';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 const buildGuestCompleteRegistrationBody = (phoneNumber: string, address: string , dietaryRestrictions: Array<DietaryRestrictionType>, allergies: string) => {
   return JSON.stringify({
     userDataForm: {
-      role: UserRole.GUEST,
+      role: UserRoles.GUEST,
       roleDetails: {
         contactDetails: {
           phoneNumber,
@@ -22,6 +22,8 @@ const buildGuestCompleteRegistrationBody = (phoneNumber: string, address: string
 };
 
 export default function GuestRegistration() {
+
+  const {completeRegistrationCoordinator} = useAuthContext();
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
@@ -147,23 +149,14 @@ export default function GuestRegistration() {
     try{
     setIsSubmitting(true);
     const guestCompleteRegistration = buildGuestCompleteRegistrationBody(phoneNumber, address, selectedRestrictions, allergies);
-    console.log('Guest complete registration:', guestCompleteRegistration);
+  
+  const response: any = await completeRegistrationCoordinator(guestCompleteRegistration);
+  if(response.success){
+    router.push('/GuestDashboard');
+  }else{
+    return response.error;
+  }
 
-    const response = await completeRegistration(guestCompleteRegistration);
-    console.log('Response:', response);
-    if (response.error) {
-      if(response.status === 500){
-        Alert.alert('Error', 'Internal error, please try again later');
-      }else if(response.status === 401){
-        Alert.alert('Error', 'Unauthorized, please login again');
-        router.push('/Auth');
-      }else{
-        Alert.alert('Error', response.error);
-      }
-    } else {
-      Alert.alert('Success', 'Registration completed successfully');
-      router.push('/GuestDashboard');
-    }
   }catch(error){
     console.log('Error:', error);
   }finally{

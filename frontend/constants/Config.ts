@@ -78,6 +78,7 @@ export const Config = {
     // Authentication
     AUTH: {
       COMPLETE_REGISTRATION: `${selectedENV.API_URL}/api/auth/complete-registration`,
+      LOGOUT: `${selectedENV.API_URL}/api/auth/logout`,
     },
     
     // Events
@@ -99,8 +100,8 @@ export const Config = {
     
     // Users
     USERS: {
-      PROFILE: '/users/profile',
-      UPDATE_PROFILE: '/users/profile',
+      PROFILE: '/user/me',
+      UPDATE_PROFILE: '/user/me',
     },
   },
   

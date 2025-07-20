@@ -4,8 +4,8 @@
     summary: Initiates Google OAuth authentication
     description: |
       Redirects to Google OAuth login page. Supports both web and mobile platforms.
-      - Web: Sets cookies and redirects to web URLs after authentication
-      - Mobile: Redirects to app scheme URLs with authentication data in query parameters
+      - Web: Intended to be opened in a popup window; after authentication, returns HTML page that communicates with parent window via postMessage
+      - Mobile: Direct redirect to app scheme URLs with authentication data in query parameters
     parameters:
       - in: query
         name: platform
@@ -15,9 +15,18 @@
           default: web
         description: |
           Platform type for authentication flow:
-          - `web`: Returns cookies and redirects to web URLs
+          - `web`: Returns HTML page with postMessage communication (designed for popup windows)
           - `mobile`: Redirects to app scheme with data in URL parameters
         example: mobile
+      - in: query
+        name: origin
+        schema:
+          type: string
+        description: |
+          (Web only) Origin URL of the main application window.
+          Used for postMessage security and CORS validation.
+          Should match the domain opening the popup window.
+        example: "http://localhost:8081"
     responses:
       302:
         description: Redirects to Google OAuth authentication page
@@ -25,7 +34,7 @@
           Location:
             schema:
               type: string
-              example: "https://accounts.google.com/o/oauth2/v2/auth?client_id=...&state=mobile"
+              example: "https://accounts.google.com/o/oauth2/v2/auth?client_id=...&state=web&redirect_uri=..."
       400:
         description: Invalid platform parameter
         content:
@@ -45,10 +54,11 @@
       Handles the callback from Google OAuth. Behavior differs based on platform:
       
       **Web Platform (state=web):**
-      - Sets HTTP-only JWT cookie
-      - Returns 303 redirects to web URLs
-      - New users → complete-registration page
-      - Existing users → dashboard page
+      - Sets HTTP-only JWT cookie for authentication
+      - Returns 200 with HTML page containing authentication success UI
+      - HTML page uses JavaScript postMessage to send auth data to parent window (React app)
+      - Popup window automatically closes after sending data
+      - Parent window receives auth result and handles navigation
       
       **Mobile Platform (state=mobile):**
       - Returns 302 redirects to app scheme URLs
@@ -70,28 +80,48 @@
           enum: [web, mobile]
         description: |
           Platform identifier passed back from Google OAuth.
-          Determines response format and redirect behavior.
-        example: "mobile"
+          Determines response format and behavior.
+        example: "web"
+      - in: query
+        name: origin
+        schema:
+          type: string
+        description: |
+          (Web only) Origin URL of the parent window for postMessage security.
+          Used to ensure messages are only sent to the correct origin.
+        example: "http://localhost:8081"
     responses:
-      303:
-        description: Web platform redirect with cookie authentication
+      200:
+        description: Web platform authentication success page
         headers:
           Set-Cookie:
             schema:
               type: string
-              example: "jwt=eyJhbGciOiJIUzI1NiIs...; HttpOnly; Secure; SameSite=Lax; Max-Age=86400"
-            description: JWT token for web authentication
-          Location:
+              example: "jwt=eyJhbGciOiJIUzI1NiIs...; HttpOnly; Secure; SameSite=none; Max-Age=86400"
+            description: JWT token cookie for web authentication
+        content:
+          text/html:
             schema:
               type: string
-            description: Redirect URL based on user registration status
-            examples:
-              newUser:
-                value: "https://example.com/complete-registration"
-                summary: "New user needing registration completion"
-              existingUser:
-                value: "https://example.com/dashboard"
-                summary: "Existing user with completed registration"
+              description: |
+                HTML page with authentication success UI and JavaScript postMessage functionality.
+                The page includes:
+                - Success confirmation UI with loading spinner
+                - JavaScript that sends auth data to parent window via postMessage
+                - Automatic popup closure after data transmission
+                - Error handling for communication failures
+              example: |
+                HTML content includes JavaScript that posts message:
+                ```javascript
+                window.opener.postMessage({
+                  type: 'GOOGLE_AUTH_SUCCESS',
+                  result: {
+                    success: true,
+                    user: { _id: "...", firstName: "John", ... },
+                    isRegistrationComplete: true
+                  }
+                }, origin);
+                ```
       302:
         description: Mobile platform redirect with data in URL parameters
         headers:
@@ -126,14 +156,18 @@
       401:
         description: Authentication failed (both platforms)
         content:
-          text/plain:
+          text/html:
             schema:
               type: string
-              description: Redirect to error page/URL with error message
+              description: |
+                Web: HTML error page with postMessage to parent window
+                Mobile: Redirect to error URL with error message
             examples:
               webError:
-                value: "https://example.com/auth-error?reason=OAuth%20authentication%20failed"
-                summary: "Web platform error redirect"
+                value: |
+                  HTML page that posts error message:
+                  { type: 'GOOGLE_AUTH_ERROR', error: 'OAuth authentication failed' }
+                summary: "Web platform error page with postMessage"
               mobileError:
                 value: "exp://localhost:19000/--/auth/error?error=OAuth%20authentication%20failed"
                 summary: "Mobile platform error redirect"

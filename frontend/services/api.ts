@@ -6,6 +6,14 @@ import { Platform } from 'react-native';
 import { Config, HttpMethod } from '../constants/Config';
 import { router } from 'expo-router';
 
+
+let unAuthorizedCallback: ()=>void;
+export const  registerUnauthorizedHandler = (unauthorizedHandler: ()=>void)=>{
+    unAuthorizedCallback = unauthorizedHandler;
+}
+
+
+
 const apiClient = axios.create({
     baseURL: Config.API_URL,
     timeout: Config.API_TIMEOUT,
@@ -46,25 +54,23 @@ apiClient.interceptors.response.use(
     },
     // Error handler
     async (error: any) => {
-      console.log(`ERROR !!!!!`)
+      console.log(`🚨 API ERROR INTERCEPTOR TRIGGERED 🚨`)
+      console.log('Error details:', error);
       
       // Get status from multiple possible locations
       const status = error.status || error.response?.status || error.code;
+      console.log(`Status detected: ${status}`);
       
       // Handle token expiration
-      if (status === 401) {
-        console.log(`401 ERROR !!!!!`)
-        // Platform-specific unauthorized handling
-        if (Platform.OS === 'web') {
-          localStorage.setItem('isUnAuthUser', 'true');
-        } else {
-          // For mobile, clear the stored token and set flag
-          await SecureStore.deleteItemAsync(Config.JWT_STORAGE_KEY);
-          await SecureStore.setItemAsync('isUnAuthUser', 'true');
-        }
-        router.replace('/')
+      if (status === 401 && unAuthorizedCallback) {
+        console.log('🚨 401 DETECTED - CALLING UNAUTHORIZED CALLBACK 🚨');
+        unAuthorizedCallback();
+        console.log('🚨 UNAUTHORIZED CALLBACK INVOKED 🚨');
+        return Promise.reject({error: 'Unauthorized request', status: 401});
       }
       
+      console.log('❌ API ERROR: Not 401 or no callback registered');
+      return Promise.reject(error);
     }
 );
 

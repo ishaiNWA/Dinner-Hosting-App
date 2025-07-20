@@ -37,10 +37,10 @@ const googleAuthHandler = async (req, res, next) => {
     
     const token = jwt.generateJWT(user);
 
-    //ONE_DAY_IN_MS
     if (platform === platforms.WEB) {
       const cookieOptions = {
-        expires: new Date(Date.now() + ONE_DAY_IN_MS),
+        expires: new Date(Date.now() + ONE_DAY_IN_MS
+      ),
         httpOnly: true,
         secure: true, //always true when using ngrok server
         sameSite: 'none',  // Required for cross-origin cookies
