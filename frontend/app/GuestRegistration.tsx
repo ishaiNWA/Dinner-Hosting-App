@@ -152,7 +152,7 @@ export default function GuestRegistration() {
   
   const response: any = await completeRegistrationCoordinator(guestCompleteRegistration);
   if(response.success){
-    router.replace('/GuestDashboard'); // Replace instead of push
+    router.replace('/GuestDashboard'); 
   }else{
     return response.error;
   }
