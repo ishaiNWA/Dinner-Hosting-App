@@ -18,6 +18,7 @@ interface AuthContextType {
     isRegistrationComplete: boolean;
     isLoading: boolean;
     userRole: UserRoles | null;
+    userName: string | null;
     googleLoginCoordinator: () => Promise<void>;
     completeRegistrationCoordinator: (requestBody: any) => Promise<{success: boolean, error?: string}>;
     logoutCoordinator: () => Promise<{success: boolean, error?: string}>;
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const AuthProvider = ({children}: {children: React.ReactNode}) =>{
 
     const [user, setUser] = useState<User | null>(null)
+    const [ userName, setUserName] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
     const [isRegistrationComplete, setIsRegistrationComplete] = useState<boolean>(false)
@@ -65,7 +67,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
 
     const setAuthResponse = async ( responseIsLoggedIn: boolean, responseUser: User, responseIsRegistrationComplete: boolean , token: string = '') => {
         setUser(responseUser);
-        
+        setUserName(`${responseUser.firstName} ${responseUser.lastName}`);
         // Only store token manually on mobile platforms
         // Web uses httpOnly cookies set by backend
         if (Platform.OS !== 'web') {
@@ -80,8 +82,8 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
             localStorage.setItem('isLoggedIn', responseIsLoggedIn.toString());
             localStorage.setItem('isRegistrationComplete', responseIsRegistrationComplete.toString());
             localStorage.setItem('userRole', responseUser.role as string);
-            console.log(`responseIsLoggedIn: ${responseIsLoggedIn}`);
-            console.log(`complete registration: LOCAL STORAGE IS LOGGED IN: ${localStorage.getItem('isLoggedIn')}`);
+            localStorage.setItem('userName', `${responseUser.firstName} ${responseUser.lastName}`);
+
         }
         setIsLoading(false);
     }
@@ -93,7 +95,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
                 const savedIsLoggedIn = localStorage.getItem('isLoggedIn');
                 const savedUserRole = localStorage.getItem('userRole');
                 const savedIsRegistrationComplete = localStorage.getItem('isRegistrationComplete');
-                
+                const savedUserName = localStorage.getItem('userName');
 
                 console.log('IS SAVED IS LOGGED IN TRUE OR FALSE:', savedIsLoggedIn);
 
@@ -102,7 +104,8 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
                     setIsLoggedIn(true);
                     setUserRole(savedUserRole as UserRoles);
                     setIsRegistrationComplete(savedIsRegistrationComplete === 'true');      
-                    
+                    setUserName(savedUserName);
+
                     // Validate with server
                     try {
                         console.log('🔍 VALIDATING TOKEN WITH SERVER...');
@@ -164,31 +167,22 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
     }
         const clearAuthState = async () => {
 
-        console.log('clearAuthState called!!!');
-        console.log(`setIsLoggedIn BEFORE clearAuthState: ${isLoggedIn}`);
-        console.log(`setUserRole BEFORE clearAuthState: ${userRole}`);
-        console.log(`setIsRegistrationComplete BEFORE clearAuthState: ${isRegistrationComplete}`);
-        
         setUser(null);
         setUserRole(null);
         setIsLoggedIn(false);
         setIsRegistrationComplete(false);
-        
-        console.log(`setIsLoggedIn AFTER clearAuthState: ${isLoggedIn}`);
-        console.log('clearAuthState: States have been set to false/null');
+        setUserName(null);
         
         if(Platform.OS === 'web'){
             localStorage.removeItem('isRegistrationComplete');
             localStorage.removeItem('userRole');
             localStorage.removeItem('isLoggedIn');
-            console.log('clearAuthState: localStorage cleared');
+            localStorage.removeItem('userName');
         } else {
             await SecureStore.deleteItemAsync(Config.JWT_STORAGE_KEY);
-            console.log('clearAuthState: SecureStore cleared');
         }
         
         // Force navigation back to root when auth is cleared
-        console.log('🚀 FORCING NAVIGATION TO ROOT');
         router.replace('/');
     }
 
@@ -239,7 +233,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
 
 
     return(
-        <AuthContext.Provider value={{user, error, isLoggedIn, isRegistrationComplete, userRole,
+        <AuthContext.Provider value={{user, error, isLoggedIn, isRegistrationComplete, userRole, userName,    
          isLoading, googleLoginCoordinator, completeRegistrationCoordinator, logoutCoordinator, unauthorizedHandler}}>
             {children}
         </AuthContext.Provider>

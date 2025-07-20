@@ -1,4 +1,5 @@
 import { useAuthContext } from '@/contexts/AuthContext';
+import { router } from 'expo-router';
 import { use, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 
@@ -39,7 +40,7 @@ const mockEventsData = [
 export default function HostDashboard() {
 
    const [events, setEvents] = useState(mockEventsData);
-   const {user} = useAuthContext();
+   const {userName , logoutCoordinator} = useAuthContext();
 
 
    const selectEvent = (eventId: string)=>{
@@ -58,9 +59,19 @@ export default function HostDashboard() {
     )
    }
 
+   const logOutHandler = async ()=>{
+    await logoutCoordinator();
+    router.replace('/');
+   }
+
   return (
     <View style={styles.dashboardScreen}>
-      <Text style={styles.title}>`welcome ${user?.firstName} ${user?.lastName}`</Text>
+      {/* Logout Button */}
+      <TouchableOpacity style={styles.logoutButton} onPress={logOutHandler}>
+        <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.title}>welcome {userName}</Text>
       <View style={styles.eventsContainer}>
          <Text style={styles.eventsContainerTitle}>published events</Text>
          <View style={styles.eventsHeaderTopBar}>
@@ -152,5 +163,20 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
     textAlign: 'center',
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    backgroundColor: '#FF3B30',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    zIndex: 1,
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 }); 
