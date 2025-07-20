@@ -74,7 +74,7 @@ apiClient.interceptors.response.use(
     }
 );
 
-export const apiRequest = (method: HttpMethod, url: string, data = null, config = {}) => {
+export const apiRequest = (method: HttpMethod, url: string, data = undefined, config = {}) => {
     return apiClient.request({
       method,
       url,

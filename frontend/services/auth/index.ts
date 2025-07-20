@@ -42,7 +42,7 @@ export async function completeRegistration(requestBody: any) {
 
 export async function logout() {
     try {
-        const response = await apiRequest(HttpMethod.POST, ENDPOINTS.AUTH.LOGOUT, null);
+        const response = await apiRequest(HttpMethod.POST, ENDPOINTS.AUTH.LOGOUT, undefined);
         return response.data;
     } catch (error: any) {
         return { error: error.message };

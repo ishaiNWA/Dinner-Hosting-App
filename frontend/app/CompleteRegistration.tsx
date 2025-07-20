@@ -1,11 +1,13 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { UserRoles } from '@/types/auth';
 import { router } from 'expo-router';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 
 
 export default function CompleteRegistration() {
 
+  const {logoutCoordinator} = useAuthContext();
 
   const navigationPress = (role :UserRoles)=>{
     console.log('Button pressed for role:', role);
@@ -22,8 +24,20 @@ export default function CompleteRegistration() {
     }
   }
 
+  const logOutHandler = async () => {
+    await logoutCoordinator();
+  }
+
   return (
     <View style={styles.container}>
+      {/* Logout Button */}
+      <TouchableOpacity 
+        style={styles.logoutButton} 
+        onPress={logOutHandler}
+      >
+        <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>Choose Your Role</Text>
       
       <View style={styles.cardsContainer}>
@@ -137,5 +151,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    backgroundColor: '#FF3B30',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    zIndex: 1,
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
