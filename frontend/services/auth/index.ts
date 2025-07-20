@@ -35,7 +35,7 @@ export async function completeRegistration(requestBody: any) {
         console.log(`this is the response: ${JSON.stringify(response, null, 2)}`)
         return response.data;
     } catch (error: any) {
-        console.log('THROWN ERROR!!', error);
+        console.log('COMPLETE REGISTRATION THROWN ERROR!!', error);
         return error;
     }
 } 

@@ -54,11 +54,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
             } else {
                 const {token, user, isRegistrationComplete} = result;
                await setAuthResponse( true, user, isRegistrationComplete, token)
-               if(Platform.OS === 'web'){
-                localStorage.setItem('isLoggedIn', isLoggedIn.toString());
-                localStorage.setItem('isRegistrationComplete', isRegistrationComplete.toString());
-                localStorage.setItem('userRole', user.role);
-               }
+               // localStorage is already handled in setAuthResponse - no need to duplicate
             }
         } catch (error: any) {
             setError(error.message);
@@ -75,14 +71,17 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
         if (Platform.OS !== 'web') {
             await SecureStore.setItemAsync(Config.JWT_STORAGE_KEY, token);
         }
-        console.log('SET AUTH RESPONSE CALLED!!!');
-        console.log(`isLoggedIn BEFORE: ${isLoggedIn}`);
-        setIsLoggedIn(true);
+
+        setIsLoggedIn(responseIsLoggedIn);
         setUserRole(responseUser.role);
         setIsRegistrationComplete(responseIsRegistrationComplete);
         console.log(`isLoggedIn AFTER: ${isLoggedIn}`);
         if(Platform.OS === 'web'){
             localStorage.setItem('isLoggedIn', responseIsLoggedIn.toString());
+            localStorage.setItem('isRegistrationComplete', responseIsRegistrationComplete.toString());
+            localStorage.setItem('userRole', responseUser.role as string);
+            console.log(`responseIsLoggedIn: ${responseIsLoggedIn}`);
+            console.log(`complete registration: LOCAL STORAGE IS LOGGED IN: ${localStorage.getItem('isLoggedIn')}`);
         }
         setIsLoading(false);
     }
@@ -90,6 +89,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
     useEffect(()=>{
         const restoreAuthState = async ()=>{
                 // Try to restore from localStorage
+
                 const savedIsLoggedIn = localStorage.getItem('isLoggedIn');
                 const savedUserRole = localStorage.getItem('userRole');
                 const savedIsRegistrationComplete = localStorage.getItem('isRegistrationComplete');
@@ -124,7 +124,6 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
                 }
         };
 
-        console.log("AM I HERE???")
         const initializeAuth = async () => {
             if (Platform.OS === 'web'){
                 await restoreAuthState();
@@ -156,6 +155,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
               setUserRole(role);
               
               if(Platform.OS === 'web'){
+                console.log(`complete registration: LOCAL STORAGE IS LOGGED IN: ${localStorage.getItem('isLoggedIn')}`);
                 localStorage.setItem('isRegistrationComplete', 'true');
                 localStorage.setItem('userRole', role);
               }

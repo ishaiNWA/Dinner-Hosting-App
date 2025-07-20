@@ -80,7 +80,7 @@ export default function HostRegistration() {
 
     const response: any = await completeRegistrationCoordinator(hostCompleteRegistration);
     if(response.success){
-      router.push('/HostDashboard');
+      router.replace('/HostDashboard'); // Replace instead of push
     }else{
       return response.error;
     }
