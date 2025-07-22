@@ -4,8 +4,11 @@ import { UserRoles } from "@/types/auth";
 import { DIETARY_RESTRICTIONS, DietaryRestrictionType } from '@/constants/dietaryRestrictions';
 import { router } from 'expo-router';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { searchForAddress } from '@/services/addressService';
-import { StandardAddress } from '@/types/address';
+import PhoneNumberInput from '@/components/forms/PhoneNumberInput';
+import AddressInput from '@/components/forms/AddressInput';
+import usePhoneValidation from './hooks/usePhoneContext';
+import useAddressContext from './hooks/useAddressContext';
+import usePhoneContext from './hooks/usePhoneContext';
 
 const buildGuestCompleteRegistrationBody = (phoneNumber: string, address: string , dietaryRestrictions: Array<DietaryRestrictionType>, allergies: string) => {
   return JSON.stringify({
@@ -27,14 +30,8 @@ export default function GuestRegistration() {
 
   const {completeRegistrationCoordinator} = useAuthContext();
 
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [phoneError, setPhoneError] = useState('');
-
-  const [address, setAddress] = useState('');
-  const [addressError, setAddressError] = useState('');
-  const [addressSuggestions, setAddressSuggestions] = useState<StandardAddress[]>([]);
-  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
-  const [selectedAddressSuggestion, setSelectedAddressSuggestion] = useState('');
+  const phoneContextObject = usePhoneContext();
+  const addressContextObject = useAddressContext();
 
   const [selectedRestrictions, setSelectedRestrictions] = useState<DietaryRestrictionType[]>([]);
   const [isRestrictionsModalVisible, setIsRestrictionsModalVisible] = useState(false);
@@ -44,6 +41,7 @@ export default function GuestRegistration() {
   const[allergiesOption, setAllergiesOption] = useState<'none' | 'other' |null >(null);
   const [allergiesError, setAllergiesError] = useState('');
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAllergyChange = (text: string) => {
     setAllergies(text);
@@ -74,58 +72,6 @@ export default function GuestRegistration() {
     handleAllergyChange('');
   };
 
-
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const validateIsraeliPhone = (phone: string) => {
-    // Remove all non-digits
-    const digits = phone.replace(/\D/g, '');
-    
-    // Must be exactly 10 digits starting with 05
-    const israeliPhoneRegex = /^05\d{8}$/;
-    return israeliPhoneRegex.test(digits);
-  };
-
-  const handlePhoneChange = (text: string) => {
-    setPhoneNumber(text);
-    
-    // Real-time validation
-    if (text.length > 0) {
-      if (!validateIsraeliPhone(text)) {
-        setPhoneError('Invalid format. Use: 05X-XXXXXXX');
-      } else {
-        setPhoneError(''); // Clear error when valid
-      }
-    } else {
-      setPhoneError(''); // Clear error when empty
-    }
-  };
-
-  const handleAddressChange = (text: string) => {
-    setAddress(text);
-  };
-
-  const handleSelectedAddressSuggestionChange = (address: string) => {
-    setShowAddressSuggestions(false);
-    setSelectedAddressSuggestion(address);
-    handleAddressChange(address);
-  };
-
-  useEffect(() => {
-    let searchAddressTimeoutId: any;
-    if (address.length >= 3 && address !== selectedAddressSuggestion) {
-      searchAddressTimeoutId = setTimeout(async function fetchAddressSuggestions() {
-        const suggestions = await searchForAddress(address);
-        setAddressSuggestions(suggestions);
-        setShowAddressSuggestions(true);
-      }, 500); // 500ms debounce delay
-    } else {
-      setShowAddressSuggestions(false);
-    }
-    return () => clearTimeout(searchAddressTimeoutId);
-  }, [address]);
-
   const handleGoBack = () => {
     console.log('Going back to CompleteRegistration');
     router.back();
@@ -150,15 +96,15 @@ export default function GuestRegistration() {
     });
   };
 
-
-
-
   const isFormValid = () => {
-    return (phoneNumber !== '' && phoneError === '' && address !== '' && selectedRestrictions.length > 0 
-      && allergies !== '' && allergiesError === '' && selectedAddressSuggestion === address && addressError === ''
+    return (
+      phoneContextObject.isValidPhone() && 
+      addressContextObject.isAddressValid() && 
+      selectedRestrictions.length > 0 && 
+      allergies !== '' && 
+      allergiesError === ''
     );
   };
-
 
   const handleSubmit = async () => {
     if(isSubmitting){
@@ -166,7 +112,12 @@ export default function GuestRegistration() {
     }
     try{
     setIsSubmitting(true);
-    const guestCompleteRegistration = buildGuestCompleteRegistrationBody(phoneNumber, address, selectedRestrictions, allergies);
+    const guestCompleteRegistration = buildGuestCompleteRegistrationBody(
+      phoneContextObject.phoneNumber, 
+      addressContextObject.address, 
+      selectedRestrictions, 
+      allergies
+    );
   
   const response: any = await completeRegistrationCoordinator(guestCompleteRegistration);
   if(response.success){
@@ -202,55 +153,14 @@ export default function GuestRegistration() {
 
       <View style={styles.formContainer}>
           {/* Phone Number Field */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Phone Number</Text>
-            <TextInput
-              style={[
-                styles.input,
-                phoneError ? styles.inputError : styles.inputValid
-              ]}
-              value={phoneNumber}
-              onChangeText={handlePhoneChange}
-              placeholder="05X-XXXXXXX"
-              keyboardType="numeric"
-              maxLength={11}
-            />
-            {phoneError ? (
-              <Text style={styles.errorText}>{phoneError}</Text>
-            ) : null}
-          </View>
+          <PhoneNumberInput
+            {...phoneContextObject}
+          />
 
           {/* Address Field */}
-            <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Address</Text>
-            <TextInput
-              style={[
-                styles.input,
-                addressError ? styles.inputError : styles.inputValid
-              ]}
-              value={address}
-              onChangeText={handleAddressChange}
-              placeholder="Enter your full address"
-              multiline={true}
-              numberOfLines={3}
-            />
-            {showAddressSuggestions && addressSuggestions.length > 0 && (
-              <View style={styles.suggestionsContainer}>
-                {addressSuggestions.map((suggestion: StandardAddress) => (
-                  <TouchableOpacity
-                    key={suggestion.placeId}
-                    style={styles.addressSuggestionsButton}
-                    onPress={() => handleSelectedAddressSuggestionChange(suggestion.fullAddress)}
-                  >
-                    <Text style={styles.suggestionText}>{suggestion.fullAddress}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-            {addressError ? (
-              <Text style={styles.errorText}>{addressError}</Text>
-            ) : null}
-          </View>
+          <AddressInput 
+            {...addressContextObject}
+          />
 
           {/* Allergies Field */}
           <View style={styles.fieldContainer}>
@@ -382,7 +292,8 @@ export default function GuestRegistration() {
               </View>
             </View>
           </Modal>
-<View style={styles.buttonContainer}>
+
+          <View style={styles.buttonContainer}>
             <Button 
               title={isSubmitting ? "Submitting..." : "Submit Registration"} 
               onPress={handleSubmit} 
@@ -395,9 +306,6 @@ export default function GuestRegistration() {
             )}
           </View>
         </View>
-
-    
-
 
       </ScrollView>
 

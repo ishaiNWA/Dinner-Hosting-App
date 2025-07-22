@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, Button, TouchableOpacity, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { UserRoles } from "@/types/auth";
-import { completeRegistration } from '@/services/auth';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { searchForAddress } from '@/services/addressService';
-import { StandardAddress } from '@/types/address';
+import PhoneNumberInput from '@/components/forms/PhoneNumberInput';
+import AddressInput from '@/components/forms/AddressInput';
+import usePhoneValidation from './hooks/usePhoneContext';
+import useAddressContext from './hooks/useAddressContext';
 
 const buildHostCompleteRegistrationBody = (phoneNumber: string, address: string) => {
   return JSON.stringify({
@@ -24,71 +25,15 @@ const buildHostCompleteRegistrationBody = (phoneNumber: string, address: string)
 export default function HostRegistration() {
 
   const {completeRegistrationCoordinator} = useAuthContext();
-  
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [phoneError, setPhoneError] = useState('');
 
-  const [address, setAddress] = useState('');
-  const [addressError, setAddressError] = useState('');
-  const [addressSuggestions, setAddressSuggestions] = useState<StandardAddress[]>([]);
-  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
-  const [selectedAddressSuggestion, setSelectedAddressSuggestion] = useState('');
+  const phoneValidationObject = usePhoneValidation();
+
+  const addressContextObject = useAddressContext();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateIsraeliPhone = (phone: string) => {
-    // Remove all non-digits
-    const digits = phone.replace(/\D/g, '');
-    
-    // Must be exactly 10 digits starting with 05
-    const israeliPhoneRegex = /^05\d{8}$/;
-    return israeliPhoneRegex.test(digits);
-  };
-
-  const handlePhoneChange = (text: string) => {
-    setPhoneNumber(text);
-    
-    // Real-time validation
-    if (text.length > 0) {
-      if (!validateIsraeliPhone(text)) {
-        setPhoneError('Invalid format. Use: 05X-XXXXXXX');
-      } else {
-        setPhoneError(''); // Clear error when valid
-      }
-    } else {
-      setPhoneError(''); // Clear error when empty
-    }
-  };
-
-
-const handleSelctedAddressSuggestionChange = (address: string) =>{
-  setShowAddressSuggestions(false);
-  setSelectedAddressSuggestion(address);
-  handleAddressChange(address)
-}
-  
-  const handleAddressChange = (address: string) => {
-     setAddress(address);
-
-  }
-
-  useEffect(() => {
-    let searchAddressTimeoutId: any;
-    if(address.length >= 3 && address !== selectedAddressSuggestion){  
-    searchAddressTimeoutId = setTimeout(async function fetchAddressSuggestions() {
-
-        const suggestionsArray = await searchForAddress(address);
-        setAddressSuggestions(suggestionsArray);
-        setShowAddressSuggestions(true);
-      }, 500);// 500ms debounce delay
-
-    }else{
-      setShowAddressSuggestions(false);
-    }
-    return () => clearTimeout(searchAddressTimeoutId);
-  }, [address]);
-
   const isFormValid = () => {
-    return (phoneNumber !== '' && phoneError === '' && address !== '' && addressError === '' && selectedAddressSuggestion === address);
+    return (phoneValidationObject.isValidPhone() && addressContextObject.isAddressValid());
   };
 
   const handleSubmit = async () => {
@@ -97,7 +42,7 @@ const handleSelctedAddressSuggestionChange = (address: string) =>{
     }
     try{
     setIsSubmitting(true);
-    const hostCompleteRegistration = buildHostCompleteRegistrationBody(phoneNumber, address);
+    const hostCompleteRegistration = buildHostCompleteRegistrationBody(phoneValidationObject.phoneNumber,addressContextObject.address);
 
     const response: any = await completeRegistrationCoordinator(hostCompleteRegistration);
     if(response.success){
@@ -138,53 +83,14 @@ const handleSelctedAddressSuggestionChange = (address: string) =>{
         
         <View style={styles.formContainer}>
           {/* Phone Number Field */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Phone Number</Text>
-            <TextInput
-              style={[
-                styles.input,
-                phoneError ? styles.inputError : styles.inputValid
-              ]}
-              value={phoneNumber}
-              onChangeText={handlePhoneChange}
-              placeholder="05X-XXXXXXX"
-              keyboardType="numeric"
-              maxLength={11}
-            />
-            {phoneError ? (
-              <Text style={styles.errorText}>{phoneError}</Text>
-            ) : null}
-          </View>
+          <PhoneNumberInput
+            {...phoneValidationObject}
+          />
 
           {/* Address Field */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Address</Text>
-            <TextInput
-              style={[
-                styles.input,
-                addressError ? styles.inputError : styles.inputValid
-              ]}
-              value={address}
-              onChangeText={handleAddressChange}
-              placeholder="Enter your full address"
-              multiline={true}
-              numberOfLines={3}
-            /> 
-            {showAddressSuggestions && addressSuggestions.length > 0 && (
-              <View style={styles.suggestionsContainer}>
-              {addressSuggestions.map((suggestion: StandardAddress) => (
-                <TouchableOpacity  key={suggestion.placeId} style={styles.addressSuggestionsButton} 
-                  onPress={() => handleSelctedAddressSuggestionChange(suggestion.fullAddress)}> 
-
-                  <Text style={styles.suggestionText}>{suggestion.fullAddress}</Text>
-
-                  </TouchableOpacity> 
-                ))}
-            </View> )}
-            {addressError ? (
-              <Text style={styles.errorText}>{addressError}</Text>
-            ) : null}
-          </View>
+           <AddressInput 
+            {...addressContextObject}
+          />
 
           <View style={styles.buttonContainer}>
             <Button 
