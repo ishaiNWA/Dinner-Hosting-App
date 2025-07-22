@@ -100,8 +100,8 @@ export const Config = {
     
     // Users
     USERS: {
-      PROFILE: '/user/me',
-      UPDATE_PROFILE: '/user/me',
+      PROFILE: '/api/user/me',
+      UPDATE_PROFILE: '/api/user/me',
     },
   },
   
