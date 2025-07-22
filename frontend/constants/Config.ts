@@ -125,6 +125,11 @@ export const Config = {
     OFFLINE_MODE: false, // For future implementation
   },
   
+  // Address Service Configuration
+
+    ADDRESS_SERVICE_BASE_URL: 'https://nominatim.openstreetmap.org',
+
+  
   // Development helpers
   ...(selectedENV.DEBUG && {
     CURRENT_ENV: __DEV__ ? 'development' : 'production',

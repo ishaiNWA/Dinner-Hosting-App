@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { UserRoles } from "@/types/auth";
 import { completeRegistration } from '@/services/auth';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { searchForAddress } from '@/services/addressService';
+import { StandardAddress } from '@/types/address';
 
 const buildHostCompleteRegistrationBody = (phoneNumber: string, address: string) => {
   return JSON.stringify({
@@ -28,7 +30,9 @@ export default function HostRegistration() {
 
   const [address, setAddress] = useState('');
   const [addressError, setAddressError] = useState('');
-
+  const [addressSuggestions, setAddressSuggestions] = useState<StandardAddress[]>([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [selectedAddressSuggestion, setSelectedAddressSuggestion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateIsraeliPhone = (phone: string) => {
@@ -55,19 +59,36 @@ export default function HostRegistration() {
     }
   };
 
-  const handleAddressChange = (text: string) => {
-    setAddress(text);
-    
-    // Simple validation - just required
-    if (text.length > 0 && text.trim().length < 5) {
-      setAddressError('Address too short');
-    } else {
-      setAddressError('');
+
+const handleSelctedAddressSuggestionChange = (address: string) =>{
+  setShowAddressSuggestions(false);
+  setSelectedAddressSuggestion(address);
+  handleAddressChange(address)
+}
+  
+  const handleAddressChange = (address: string) => {
+     setAddress(address);
+
+  }
+
+  useEffect(() => {
+    let searchAddressTimeoutId: any;
+    if(address.length >= 3 && address !== selectedAddressSuggestion){  
+    searchAddressTimeoutId = setTimeout(async function fetchAddressSuggestions() {
+
+        const suggestionsArray = await searchForAddress(address);
+        setAddressSuggestions(suggestionsArray);
+        setShowAddressSuggestions(true);
+      }, 500);// 500ms debounce delay
+
+    }else{
+      setShowAddressSuggestions(false);
     }
-  };
+    return () => clearTimeout(searchAddressTimeoutId);
+  }, [address]);
 
   const isFormValid = () => {
-    return (phoneNumber !== '' && phoneError === '' && address !== '' && addressError === '');
+    return (phoneNumber !== '' && phoneError === '' && address !== '' && addressError === '' && selectedAddressSuggestion === address);
   };
 
   const handleSubmit = async () => {
@@ -148,7 +169,18 @@ export default function HostRegistration() {
               placeholder="Enter your full address"
               multiline={true}
               numberOfLines={3}
-            />
+            /> 
+            {showAddressSuggestions && addressSuggestions.length > 0 && (
+              <View style={styles.suggestionsContainer}>
+              {addressSuggestions.map((suggestion: StandardAddress) => (
+                <TouchableOpacity  key={suggestion.placeId} style={styles.addressSuggestionsButton} 
+                  onPress={() => handleSelctedAddressSuggestionChange(suggestion.fullAddress)}> 
+
+                  <Text style={styles.suggestionText}>{suggestion.fullAddress}</Text>
+
+                  </TouchableOpacity> 
+                ))}
+            </View> )}
             {addressError ? (
               <Text style={styles.errorText}>{addressError}</Text>
             ) : null}
@@ -239,5 +271,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 10,
     textAlign: 'center',
+  },
+  suggestionsContainer: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+  },
+  suggestionText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  addressSuggestionsButton: {
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
   },
 });

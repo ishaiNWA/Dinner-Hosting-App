@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, Modal, FlatList, Button, Alert } from 'react-native';
 import { UserRoles } from "@/types/auth";
 import { DIETARY_RESTRICTIONS, DietaryRestrictionType } from '@/constants/dietaryRestrictions';
 import { router } from 'expo-router';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { searchForAddress } from '@/services/addressService';
+import { StandardAddress } from '@/types/address';
 
 const buildGuestCompleteRegistrationBody = (phoneNumber: string, address: string , dietaryRestrictions: Array<DietaryRestrictionType>, allergies: string) => {
   return JSON.stringify({
@@ -30,6 +32,9 @@ export default function GuestRegistration() {
 
   const [address, setAddress] = useState('');
   const [addressError, setAddressError] = useState('');
+  const [addressSuggestions, setAddressSuggestions] = useState<StandardAddress[]>([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [selectedAddressSuggestion, setSelectedAddressSuggestion] = useState('');
 
   const [selectedRestrictions, setSelectedRestrictions] = useState<DietaryRestrictionType[]>([]);
   const [isRestrictionsModalVisible, setIsRestrictionsModalVisible] = useState(false);
@@ -99,14 +104,27 @@ export default function GuestRegistration() {
 
   const handleAddressChange = (text: string) => {
     setAddress(text);
-    
-    // Simple validation - just required
-    if (text.length > 0 && text.trim().length < 5) {
-      setAddressError('Address too short');
-    } else {
-      setAddressError('');
-    }
   };
+
+  const handleSelectedAddressSuggestionChange = (address: string) => {
+    setShowAddressSuggestions(false);
+    setSelectedAddressSuggestion(address);
+    handleAddressChange(address);
+  };
+
+  useEffect(() => {
+    let searchAddressTimeoutId: any;
+    if (address.length >= 3 && address !== selectedAddressSuggestion) {
+      searchAddressTimeoutId = setTimeout(async function fetchAddressSuggestions() {
+        const suggestions = await searchForAddress(address);
+        setAddressSuggestions(suggestions);
+        setShowAddressSuggestions(true);
+      }, 500); // 500ms debounce delay
+    } else {
+      setShowAddressSuggestions(false);
+    }
+    return () => clearTimeout(searchAddressTimeoutId);
+  }, [address]);
 
   const handleGoBack = () => {
     console.log('Going back to CompleteRegistration');
@@ -136,8 +154,8 @@ export default function GuestRegistration() {
 
 
   const isFormValid = () => {
-    return (phoneNumber !== '' && phoneError === '' && address !== '' && addressError === '' && selectedRestrictions.length > 0 
-      && allergies !== '' && allergiesError === ''
+    return (phoneNumber !== '' && phoneError === '' && address !== '' && selectedRestrictions.length > 0 
+      && allergies !== '' && allergiesError === '' && selectedAddressSuggestion === address && addressError === ''
     );
   };
 
@@ -216,6 +234,19 @@ export default function GuestRegistration() {
               multiline={true}
               numberOfLines={3}
             />
+            {showAddressSuggestions && addressSuggestions.length > 0 && (
+              <View style={styles.suggestionsContainer}>
+                {addressSuggestions.map((suggestion: StandardAddress) => (
+                  <TouchableOpacity
+                    key={suggestion.placeId}
+                    style={styles.addressSuggestionsButton}
+                    onPress={() => handleSelectedAddressSuggestionChange(suggestion.fullAddress)}
+                  >
+                    <Text style={styles.suggestionText}>{suggestion.fullAddress}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
             {addressError ? (
               <Text style={styles.errorText}>{addressError}</Text>
             ) : null}
@@ -545,5 +576,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  suggestionsContainer: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+  },
+  suggestionText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  addressSuggestionsButton: {
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
   },
 });
