@@ -1,4 +1,5 @@
 import { searchForAddress } from "@/services/addressService";
+import { getUserAddress } from "@/services/users";
 import { StandardAddress } from "@/types/address";
 import { useEffect, useState } from "react";
 
@@ -11,7 +12,26 @@ const useAddressContext = () => {
     const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
     const [addressSuggestions, setAddressSuggestions] = useState<StandardAddress[]>([]);
     const [selectedAddressSuggestion, setSelectedAddressSuggestion] = useState('');
+    const [userHomeAddress , setUserHomeAddress] = useState<string | undefined>(undefined);
 
+
+    const getUserHomeAddress = async () => {
+        try{
+            const response = await getUserAddress();
+
+            console.log("ADDRESS CONTEXT USER HOME ADDRESS RESPONSE: ", response);
+            if(response.length > 3){
+            setUserHomeAddress(response);
+            setAddress(response);
+            }
+        }catch(error){
+            console.log(`error while trying to get users home address ${error}`)
+        }   
+    }
+
+    useEffect(() => {
+        getUserHomeAddress();
+    }, []); // Empty dependency array = run only once on mount
 
 
   const handleSelctedAddressSuggestionChange = (address: string) =>{
@@ -19,8 +39,13 @@ const useAddressContext = () => {
     setSelectedAddressSuggestion(address);
     handleAddressChange(address)
   }
-    
+
+  const invalidateHomeAddressState = () => {
+    setUserHomeAddress('');
+  }
+
     const handleAddressChange = (address: string) => {
+        invalidateHomeAddressState();
        setAddress(address);
   
     }
@@ -49,6 +74,7 @@ const useAddressContext = () => {
     return {
         address,
         addressError,
+        userHomeAddress,
         showAddressSuggestions,
         addressSuggestions,
         selectedAddressSuggestion,

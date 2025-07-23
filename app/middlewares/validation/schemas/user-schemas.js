@@ -2,7 +2,6 @@ const Joi = require("joi");
 const {userRoles} = require("../../../common/user-roles");
 const {dietaryRestrictionsArray} = require("../../../common/dietary-restrictions");
 const ISRAELI_PHONE_PATTERN = /^(\+?(972)|0)?([\-\s\.])?([23489]{1}[\-\s\.]?\d{3}[\-\s\.]?\d{4}|5\d{1}[\-\s\.]?\d{3}[\-\s\.]?\d{4})$/;
-
 // Contact details schema
 const contactDetailsSchema = Joi.object({
     phoneNumber: Joi.string()
@@ -44,8 +43,9 @@ const hostSchema = Joi.object({
     // Add more host-specific fields here as needed
 });
 
+
 module.exports = {
     userSchema,
     guestSchema,
-    hostSchema
+    hostSchema,
 };

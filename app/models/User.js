@@ -146,9 +146,40 @@ const Host = User.discriminator('Host', HostSchema);
 const Guest = User.discriminator('Guest', GuestSchema);
 // const Manager = User.discriminator('MANAGER', ManagerSchema);
 
+
+const extractAllSchemaKeys = () => {
+  const allKeys = new Set(); // Use Set to avoid duplicates
+  
+  // Get keys from base UserSchema
+  Object.keys(UserSchema.paths).forEach(key => {
+    if (key !== '_id' && key !== '__v') { // Exclude MongoDB default fields
+      allKeys.add(key);
+    }
+  });
+  
+  // Get keys from HostSchema (discriminator)
+  Object.keys(HostSchema.paths).forEach(key => {
+    if (key !== '_id' && key !== '__v') {
+      allKeys.add(key);
+    }
+  });
+  
+  // Get keys from GuestSchema (discriminator)
+  Object.keys(GuestSchema.paths).forEach(key => {
+    if (key !== '_id' && key !== '__v') {
+      allKeys.add(key);
+    }
+  });
+  
+  return Array.from(allKeys).sort(); // Convert Set to sorted array
+};
+
+const validUserSchemaKeysArray = extractAllSchemaKeys();
+
 module.exports = {
   User,
   Host, 
   Guest,
   // Manager
+  validUserSchemaKeysArray
 };

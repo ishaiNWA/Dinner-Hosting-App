@@ -1,18 +1,21 @@
 import { commonStyles } from "@/styles/commonStyles";
 import { StandardAddress } from "@/types/address";
+import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 
 interface AddressInputProps {
   address: string;
   addressError: string;
+  userHomeAddress: string
   showAddressSuggestions: boolean;
   addressSuggestions: StandardAddress[];
   handleSelctedAddressSuggestionChange: (address: string) => void;
   handleAddressChange: (text: string) => void;
 }
 
-const AddressInput = ({ address, addressError, showAddressSuggestions, addressSuggestions, handleSelctedAddressSuggestionChange, handleAddressChange }: AddressInputProps) =>{
+const AddressInput = ({ address, addressError, showAddressSuggestions, addressSuggestions, handleSelctedAddressSuggestionChange, handleAddressChange, userHomeAddress }: AddressInputProps) =>{
+
 
    return (
 
@@ -25,7 +28,7 @@ const AddressInput = ({ address, addressError, showAddressSuggestions, addressSu
       ]}
       value={address}
       onChangeText={handleAddressChange}
-      placeholder="Enter your full address"
+      placeholder= {userHomeAddress ? userHomeAddress : "Enter your home address"}
       multiline={true}
       numberOfLines={3}
     /> 

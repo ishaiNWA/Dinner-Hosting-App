@@ -4,6 +4,8 @@ import { use, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList , Modal, TextInput, Platform} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getTimeWeekFromNow } from '@/services/utils';
+import AddressInput from '@/components/forms/AddressInput';
+import useAddressContext from './hooks/useAddressContext';
 
 const mockEventsData = [
   {
@@ -57,7 +59,7 @@ export default function HostDashboard() {
   const [newEventDateError, setNewEventDateError] = useState('');
   const [showMobileDatePicker, setShowMobileDatePicker] = useState(false);
 
-
+  const addressContextObject = useAddressContext();
 
   const handleNewEventNameChange = (text: string)=>{
     setNewEventName(text);
@@ -208,6 +210,13 @@ export default function HostDashboard() {
                   </View>
                 )
               }
+              </View>
+
+              {/* event address field */}
+                <View style={styles.fieldContainer}>
+              <AddressInput
+                {...addressContextObject}
+              />
               </View>
               
               {/* event is kosher field */}

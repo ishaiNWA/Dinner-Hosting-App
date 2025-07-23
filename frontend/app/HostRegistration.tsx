@@ -24,7 +24,7 @@ const buildHostCompleteRegistrationBody = (phoneNumber: string, address: string)
 
 export default function HostRegistration() {
 
-  const {completeRegistrationCoordinator} = useAuthContext();
+  const {completeRegistrationCoordinator, user} = useAuthContext();
 
   const phoneValidationObject = usePhoneValidation();
 

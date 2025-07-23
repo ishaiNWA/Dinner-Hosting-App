@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-
+import { ValidUserProfileField } from '@/types/profile-params';
 
 
 const mandatoryEnvVars = ['EXPO_PUBLIC_API_URL'];
@@ -129,6 +129,29 @@ export const Config = {
 
     ADDRESS_SERVICE_BASE_URL: 'https://nominatim.openstreetmap.org',
 
+  // Profile Fields Constants
+  PROFILE_FIELDS: {
+    // Base UserSchema fields
+    FIRST_NAME: 'firstName' as ValidUserProfileField,
+    LAST_NAME: 'lastName' as ValidUserProfileField,
+    EMAIL: 'email' as ValidUserProfileField,
+    IS_REGISTRATION_COMPLETE: 'isRegistrationComplete' as ValidUserProfileField,
+    ROLE: 'role' as ValidUserProfileField,
+    
+    // Contact details
+    PHONE_NUMBER: 'phoneNumber' as ValidUserProfileField,
+    ADDRESS: 'address' as ValidUserProfileField,
+    
+    // Host-specific fields
+    IS_AUTHORIZED_BY_MANAGER: 'isAuthorizedByManager' as ValidUserProfileField,
+    PUBLISHED_EVENTS: 'publishedEvents' as ValidUserProfileField,
+    
+    // Guest-specific fields
+    DIETARY_RESTRICTIONS: 'dietaryRestrictions' as ValidUserProfileField,
+    ALLERGIES: 'allergies' as ValidUserProfileField,
+    UPCOMING_EVENTS: 'upcomingEvents' as ValidUserProfileField,
+    EVENT_HISTORY: 'eventHistory' as ValidUserProfileField,
+  } satisfies Record<string, ValidUserProfileField>,
   
   // Development helpers
   ...(selectedENV.DEBUG && {

@@ -8,7 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 import { router } from "expo-router";
 import { Alert, Platform } from "react-native";
 import { registerUnauthorizedHandler } from "@/services/api";
-import { me } from "@/services/users";
+import { getUserProfile } from "@/services/users";
 
 // AuthContext type
 interface AuthContextType {
@@ -109,8 +109,8 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
                     // Validate with server
                     try {
                         console.log('🔍 VALIDATING TOKEN WITH SERVER...');
-                        const userData = await me();
-                        console.log('🔍 SERVER RESPONSE:', userData);
+                        const userData = await getUserProfile();
+                        console.log('🔍 GET USER PROFILE RESPONSE:', userData);
                         
                         if (userData.error && userData.status === 401) {
                             console.log('❌ TOKEN INVALID - CLEARING AUTH STATE');
