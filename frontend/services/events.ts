@@ -2,6 +2,7 @@
 
 import { apiRequest } from "./api";
 import { Config, HttpMethod } from '../constants/Config';
+import { EventSummary } from "@/types/events";
 
 const API_URL = Config.API_URL;
 const PUBLISH_EVENT_URL = Config.ENDPOINTS.EVENTS.CREATE;
@@ -13,12 +14,29 @@ async function publishEvent(eventFormData: any){
     let response;
     try{
      response = await apiRequest(HttpMethod.POST, url, eventFormData);
-     
-     console.log(`PUBLISH EVENT RESPONSE: ${JSON.stringify(response)}`)
-    }catch(error){
-        console.log(`error while trying to publish new event: ${error}`)
+
+    console.log(`DEBUG!!!: publishEvent response: ${JSON.stringify(response)}`)
+
+    if(response.data.success === true){
+        console.log(`Success response!`)
+        const eventSummary: EventSummary = response.data.data.event;
+        return {
+            success: true,
+            eventSummary: eventSummary
+        };
+    }else{
+        return {
+            success: false,
+            error: response.data.message
+        };
     }
-    return response;
+
+    }catch(error){
+        return {
+            success: false,
+            error: error
+        };
+    }
 }
 
 export { publishEvent };

@@ -5,6 +5,8 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native'
 
 import PublishEventModal from '@/components/modals/PublishEventModal';
 import { publishEvent } from '@/services/events';
+import { EventSummary } from '@/types/events';
+import { formatEventDate } from '@/services/utils';
 
 
 const mockEventsData = [
@@ -44,28 +46,26 @@ const mockEventsData = [
 
 export default function HostDashboard() {
 
-   const [events, setEvents] = useState(mockEventsData);
+   const [events, setEvents] = useState<EventSummary[]>([]);
    const {userName , logoutCoordinator} = useAuthContext();
    const [isPublishEventModalVisible, setIsPublishEventModalVisible] = useState(false);
   
-
 
    const selectEvent = (eventId: string)=>{
     console.log('selectEvent', eventId);
    }
 
-   const renderEvent = (event: any)=>{
+   const renderEvent = (event: EventSummary)=>{
     return (
       <TouchableOpacity style={styles.eventEntryButton} onPress={()=>selectEvent(event._id)}>
       <View style={styles.eventEntry}>
         <Text style={styles.eventName}>{event.eventName}</Text>
-        <Text style={styles.eventDate}>{event.date}</Text>
-        <Text style={styles.eventParticipants}>{event.participants}</Text>
+        <Text style={styles.eventDate}>{formatEventDate(event.timing.eventDate)}</Text>
+        <Text style={styles.eventParticipants}>{event.participantCount}</Text>
       </View>
       </TouchableOpacity>
     )
    }
-
    const logOutHandler = async ()=>{
     await logoutCoordinator();
     router.replace('/');
@@ -75,12 +75,24 @@ export default function HostDashboard() {
     
 
     console.log('API call to publish event');
-     
+
     const response = await publishEvent(eventFormData);
 
-    return {
-      success: true,
-      message: 'Event published successfully'
+    console.log(`DEBUG IN HOST DASHBOARD!!!: handlePublishEvent response: ${JSON.stringify(response)}`)
+
+    if(response.success && response.eventSummary){
+      let eventSummery = response.eventSummary;
+
+      setEvents([...events, eventSummery]);
+      return {
+        success: true,
+        message: 'Event published successfully'
+      }
+    }else{
+      return {
+        success: false,
+        error: response.error
+      }
     }
    }
 
@@ -122,6 +134,7 @@ export default function HostDashboard() {
         visible={isPublishEventModalVisible}
         onClose={handleClosePublishEventModal}
         onSubmit={handlePublishEvent}
+        existingEventDates={events.map((event)=>event.timing.eventDate)} // Use correct path from EventSummary interface
       />
 
     </View>

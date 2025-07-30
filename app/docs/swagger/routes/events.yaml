@@ -27,9 +27,54 @@
                 data:
                   type: object
                   properties:
-                    eventId:
-                      type: string
-                      example: "683ee3220b4859bd42d033d1"
+                    event:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "683ee3220b4859bd42d033d1"
+                        eventName:
+                          type: string
+                          example: "Pesach Seder"
+                        timing:
+                          type: object
+                          properties:
+                            eventDate:
+                              type: string
+                              format: date-time
+                              example: "2024-07-15T19:00:00.000Z"
+                            createdAt:
+                              type: string
+                              format: date-time
+                              example: "2024-06-15T10:00:00.000Z"
+                        status:
+                          type: object
+                          properties:
+                            current:
+                              type: string
+                              enum: [open for registration, fully-booked, cancelled, completed]
+                              example: "open for registration"
+                        participantCount:
+                          type: number
+                          example: 0
+                        location:
+                          type: object
+                          properties:
+                            address:
+                              type: string
+                              example: "123 Main Street, Tel Aviv"
+                        dietary:
+                          type: object
+                          properties:
+                            isKosher:
+                              type: boolean
+                              example: true
+                            isVeganFriendly:
+                              type: boolean
+                              example: false
+                            additionalOptions:
+                              type: string
+                              example: "gluten-free, nut-free"
       400:
         description: Validation error or business rule violation
       401:

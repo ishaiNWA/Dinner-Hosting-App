@@ -40,19 +40,20 @@ interface PublishEventModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit: (eventFormData: any) => Promise<{success: boolean, error?: Error, message?: string}>;
+  existingEventDates: string[];
 }
 
 const PublishEventModal = ({
   visible,
   onClose,
   onSubmit,
-
+  existingEventDates
 }: PublishEventModalProps) => {
 
 
     const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
     const eventNameContextObject = useEventNameContext();
-    const dateContextObject = useDateContext();
+    const dateContextObject = useDateContext(existingEventDates);
     const addressContextObject = useAddressContext();
     const kosherContextObject = useKosherContext();
     const veganContextObject = useVeganContext();

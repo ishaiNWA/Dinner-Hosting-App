@@ -46,11 +46,9 @@ components:
                   description: Is the meal vegan-friendly
                   example: false
                 additionalOptions:
-                  type: array
-                  items:
-                    type: string
+                  type: string
                   description: Additional dietary options available
-                  example: ["gluten-free"]
+                  example: "gluten-free, nut-free"
 
     # Guest Event Summary (for guest list views of available events)
     GuestEventSummary:

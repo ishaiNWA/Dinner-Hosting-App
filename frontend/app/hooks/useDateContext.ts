@@ -10,9 +10,10 @@ const INVALID_DATE_PLACEHOLDER = new Date()
 
 const FIELD_INPUT_ERROR_MESSAGES = {
     newEventDate: 'please select an event date at least one week from now',
+    existingEventDate: 'this date is already taken - please select a different date'
 }
 
-const useDateContext = ()=>{
+const useDateContext = (existingEventDates: string[])=>{
 
 
     const [newEventDate, setNewEventDate] = useState<Date>(INVALID_DATE_PLACEHOLDER);
@@ -23,6 +24,8 @@ const useDateContext = ()=>{
     const handleNewEventDateChange = (event: any, selectedDate?: Date | undefined)=>{
         if(selectedDate && selectedDate < getTimeWeekFromNow()){
           setNewEventDateError(FIELD_INPUT_ERROR_MESSAGES.newEventDate);
+        }else if(existingEventDates.includes(selectedDate?.toISOString() || '')){
+          setNewEventDateError(FIELD_INPUT_ERROR_MESSAGES.existingEventDate);
         }else{
           setNewEventDateError('');
         }

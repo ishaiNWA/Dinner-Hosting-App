@@ -4,7 +4,6 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { Config, HttpMethod } from '../constants/Config';
-import { router } from 'expo-router';
 
 
 let unAuthorizedCallback: ()=>void;
