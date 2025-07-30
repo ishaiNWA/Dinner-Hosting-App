@@ -3,12 +3,14 @@ import { getUserAddress } from "@/services/users";
 import { StandardAddress } from "@/types/address";
 import { useEffect, useState } from "react";
 
-
+const FIELD_INPUT_ERROR_MESSAGES = {
+    address: 'please select an address from the suggestions',
+}
 
 const useAddressContext = () => {
 
     const [address, setAddress] = useState('');
-    const [addressError, setAddressError] = useState('');
+    const [addressError, setAddressError] = useState(FIELD_INPUT_ERROR_MESSAGES.address);
     const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
     const [addressSuggestions, setAddressSuggestions] = useState<StandardAddress[]>([]);
     const [selectedAddressSuggestion, setSelectedAddressSuggestion] = useState('');
@@ -23,6 +25,7 @@ const useAddressContext = () => {
             if(response.length > 3){
             setUserHomeAddress(response);
             setAddress(response);
+            setAddressError('');
             }
         }catch(error){
             console.log(`error while trying to get users home address ${error}`)
@@ -34,10 +37,11 @@ const useAddressContext = () => {
     }, []); // Empty dependency array = run only once on mount
 
 
-  const handleSelctedAddressSuggestionChange = (address: string) =>{
+  const handleSelectAddressSuggestion = (address: string) =>{
     setShowAddressSuggestions(false);
     setSelectedAddressSuggestion(address);
-    handleAddressChange(address)
+    setAddress(address);
+    setAddressError('');
   }
 
   const invalidateHomeAddressState = () => {
@@ -47,6 +51,7 @@ const useAddressContext = () => {
     const handleAddressChange = (address: string) => {
         invalidateHomeAddressState();
        setAddress(address);
+       setAddressError(FIELD_INPUT_ERROR_MESSAGES.address);
   
     }
   
@@ -78,7 +83,7 @@ const useAddressContext = () => {
         showAddressSuggestions,
         addressSuggestions,
         selectedAddressSuggestion,
-        handleSelctedAddressSuggestionChange,
+        handleSelectAddressSuggestion,
         handleAddressChange,
         isAddressValid
     }

@@ -7,8 +7,15 @@ components:
       properties:
         eventForm:
           type: object
-          required: [timing, location, dietary]
+          required: [eventName, timing, location, dietary]
           properties:
+            eventName:
+              type: string
+              description: Name of the event
+              example: "Pesach Seder"
+              minLength: 3
+              maxLength: 25
+              pattern: "^[a-zA-Z0-9]+$"
             timing:
               type: object
               required: [eventDate]

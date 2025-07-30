@@ -2,6 +2,19 @@ const Joi = require("joi");
 const { getDateWeekFromNow } = require("../../../utils/helpers");
 
 const eventSchema = Joi.object({
+    // Event name validation
+    eventName: Joi.string()
+        .min(3)
+        .max(25)
+        .required()
+        .trim()
+        .messages({
+            'string.min': 'Event name must be at least 3 characters',
+            'string.max': 'Event name cannot exceed 25 characters',
+            'any.required': 'Event name is required',
+            'string.empty': 'Event name cannot be empty'
+        }),
+
     // Timing validation
     timing : Joi.object({
         eventDate: Joi.date()
@@ -40,12 +53,12 @@ const eventSchema = Joi.object({
                 'any.required': 'Vegan-friendly specification is required'
             }),
         additionalOptions: Joi.string()
-            .min(2)
+            .min(0)
             .max(500)
             .optional()
             .messages({
-                'string.min': 'Dietary option must be at least 2 characters',
-                'string.max': 'Dietary option cannot exceed 50 characters'
+                'string.min': 'Dietary option must be at least 0 characters',
+                'string.max': 'Dietary option cannot exceed 500 characters'
             })
     }).required()
 });

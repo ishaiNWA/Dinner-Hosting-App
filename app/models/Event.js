@@ -8,6 +8,13 @@ const EventSchema = new Schema({
         ref: "User",
         required: true,
     },
+    eventName: {
+        type: String,
+        required: [true, "Please add an event name"],
+        minlength: [3, "Event name must be at least 3 characters"],
+        maxlength: [25, "Event name cannot exceed 25 characters"],
+        trim: true,
+    },
     timing: {
         eventDate: {
             type: Date,

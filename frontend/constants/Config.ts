@@ -84,7 +84,7 @@ export const Config = {
     // Events
     EVENTS: {
       BASE: '/events',
-      CREATE: '/events',
+      CREATE: '/api/events',
       UPDATE: (id: string) => `/events/${id}`,
       DELETE: (id: string) => `/events/${id}`,
       GET_BY_ID: (id: string) => `/events/${id}`,

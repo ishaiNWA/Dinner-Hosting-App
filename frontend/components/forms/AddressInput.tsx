@@ -7,14 +7,16 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 interface AddressInputProps {
   address: string;
   addressError: string;
-  userHomeAddress: string
+  userHomeAddress: string | undefined;
   showAddressSuggestions: boolean;
   addressSuggestions: StandardAddress[];
-  handleSelctedAddressSuggestionChange: (address: string) => void;
+  selectedAddressSuggestion: string;
+  handleSelectAddressSuggestion: (address: string) => void;
   handleAddressChange: (text: string) => void;
+  isAddressValid: ()=>boolean;
 }
 
-const AddressInput = ({ address, addressError, showAddressSuggestions, addressSuggestions, handleSelctedAddressSuggestionChange, handleAddressChange, userHomeAddress }: AddressInputProps) =>{
+const AddressInput = ({ address, addressError, showAddressSuggestions, addressSuggestions, handleSelectAddressSuggestion, handleAddressChange, userHomeAddress}: AddressInputProps) =>{
 
 
    return (
@@ -36,7 +38,7 @@ const AddressInput = ({ address, addressError, showAddressSuggestions, addressSu
       <View style={commonStyles.suggestionsContainer}>
       {addressSuggestions.map((suggestion: StandardAddress) => (
         <TouchableOpacity  key={suggestion.placeId} style={commonStyles.addressSuggestionsButton} 
-          onPress={() => handleSelctedAddressSuggestionChange(suggestion.fullAddress)}> 
+          onPress={() => handleSelectAddressSuggestion(suggestion.fullAddress)}> 
 
           <Text style={commonStyles.suggestionText}>{suggestion.fullAddress}</Text>
 
