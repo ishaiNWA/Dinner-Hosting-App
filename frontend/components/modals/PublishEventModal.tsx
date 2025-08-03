@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import EventNameInput from '@/components/forms/EventNameInput';
 import DateInput from '@/components/forms/DateInput';
 import AddressInput from '@/components/forms/AddressInput';
@@ -60,12 +60,12 @@ const PublishEventModal = ({
     const notesContextObject = useNotesContext();
 
     const clearForm = ()=>{
-        eventNameContextObject.setNewEventName('');
-        dateContextObject.setNewEventDate(INVALID_DATE_PLACEHOLDER);
-        addressContextObject.handleAddressChange('');
-        kosherContextObject.handleDropdownOptionSelection('');
-        veganContextObject.handleDropdownOptionSelection('');
-        notesContextObject.handleNoteChange('');
+        eventNameContextObject.clearEventName();
+        dateContextObject.clearDate();
+        addressContextObject.clearAddress();
+        kosherContextObject.clearKosher();
+        veganContextObject.clearVegan();
+        notesContextObject.clearNotes();
     }
 
     const isEventFormValid = ()=>{
@@ -113,67 +113,82 @@ const PublishEventModal = ({
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Publish New Event</Text>
           
-          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-            {/* Event Name Field */}
-            <View style={styles.fieldContainer}>
-              <EventNameInput
-                newEventName={eventNameContextObject.newEventName}
-                newEventNameError={eventNameContextObject.newEventNameError}
-                handleNewEventNameChange={eventNameContextObject.handleNewEventNameChange}
-              />
-            </View>
-
-            {/* Event Date Field */}
-            <View style={styles.fieldContainer}>
-              <DateInput
-                newEventDate={dateContextObject.newEventDate}
-                newEventDateError={dateContextObject.newEventDateError}
-                showMobileDatePicker={dateContextObject.showMobileDatePicker}
-                setShowMobileDatePicker={dateContextObject.setShowMobileDatePicker}
-                handleNewEventDateChange={dateContextObject.handleNewEventDateChange}
-              />
-            </View>
-
-            {/* Event Address Field */}
-            <View style={styles.fieldContainer}>
-              <AddressInput {...addressContextObject} />
-            </View>
-
-            {/* Kosher Field */}
-            <View style={styles.fieldContainer}>
-              <DropdownButton 
-                text="Kosher"
-                state={kosherContextObject.kosher}
-                setState={kosherContextObject.setKosher}
-                error={kosherContextObject.kosherError}
-                errorMessages={kosherContextObject.kosherErrorMessages}
-                showDropdown={kosherContextObject.showKosherDropDown}
-                setShowDropdown={kosherContextObject.setShowKosherDropDown}
-                dropdownOptionsArray={kosherContextObject.kosherDropDownOptionsArray}
-                handleDropdownOptionSelection={kosherContextObject.handleDropdownOptionSelection}
-              />
-            </View>
-
-            {/* Vegan Friendly Field */}
-            <View style={styles.fieldContainer}>
-              <DropdownButton 
-                text="Vegan Friendly"
-                state={veganContextObject.vegan}
-                setState={veganContextObject.setVegan}
-                error={veganContextObject.veganError}
-                errorMessages={veganContextObject.veganErrorMessages}
-                showDropdown={veganContextObject.showVeganDropDown}
-                setShowDropdown={veganContextObject.setShowVeganDropDown}
-                dropdownOptionsArray={veganContextObject.veganDropDownOptionsArray}
-                handleDropdownOptionSelection={veganContextObject.handleDropdownOptionSelection}
-              />
-            </View>
-
-            {/* Notes Field */}
-            <View style={styles.fieldContainer}>
-              <NotesInput {...notesContextObject} />
-            </View>
-          </ScrollView>
+          <FlatList 
+            data={[
+              { 
+                key: 'eventName', 
+                component: (
+                  <EventNameInput
+                    newEventName={eventNameContextObject.newEventName}
+                    newEventNameError={eventNameContextObject.newEventNameError}
+                    handleNewEventNameChange={eventNameContextObject.handleNewEventNameChange}
+                  />
+                )
+              },
+              { 
+                key: 'eventDate', 
+                component: (
+                  <DateInput
+                    newEventDate={dateContextObject.newEventDate}
+                    newEventDateError={dateContextObject.newEventDateError}
+                    showMobileDatePicker={dateContextObject.showMobileDatePicker}
+                    setShowMobileDatePicker={dateContextObject.setShowMobileDatePicker}
+                    handleNewEventDateChange={dateContextObject.handleNewEventDateChange}
+                  />
+                )
+              },
+              { 
+                key: 'eventAddress', 
+                component: <AddressInput {...addressContextObject} />
+              },
+              { 
+                key: 'kosher', 
+                component: (
+                  <DropdownButton 
+                    text="Kosher"
+                    state={kosherContextObject.kosher}
+                    setState={kosherContextObject.setKosher}
+                    error={kosherContextObject.kosherError}
+                    errorMessages={kosherContextObject.kosherErrorMessages}
+                    showDropdown={kosherContextObject.showKosherDropDown}
+                    setShowDropdown={kosherContextObject.setShowKosherDropDown}
+                    dropdownOptionsArray={kosherContextObject.kosherDropDownOptionsArray}
+                    handleDropdownOptionSelection={kosherContextObject.handleDropdownOptionSelection}
+                  />
+                )
+              },
+              { 
+                key: 'vegan', 
+                component: (
+                  <DropdownButton 
+                    text="Vegan Friendly"
+                    state={veganContextObject.vegan}
+                    setState={veganContextObject.setVegan}
+                    error={veganContextObject.veganError}
+                    errorMessages={veganContextObject.veganErrorMessages}
+                    showDropdown={veganContextObject.showVeganDropDown}
+                    setShowDropdown={veganContextObject.setShowVeganDropDown}
+                    dropdownOptionsArray={veganContextObject.veganDropDownOptionsArray}
+                    handleDropdownOptionSelection={veganContextObject.handleDropdownOptionSelection}
+                  />
+                )
+              },
+              { 
+                key: 'notes', 
+                component: <NotesInput {...notesContextObject} />
+              }
+            ]}
+            renderItem={({ item }) => (
+              <View style={styles.fieldContainer}>
+                {item.component}
+              </View>
+            )}
+            keyExtractor={(item) => item.key}
+            contentContainerStyle={styles.scrollViewContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            onScrollBeginDrag={Keyboard.dismiss}
+          />
 
           {/* Buttons */}
           <View style={styles.buttonContainer}>
@@ -212,14 +227,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
   },
   modalContent: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
-    width: '90%',
+    width: '100%',
     maxWidth: 500,
-    maxHeight: '80%',
+    maxHeight: '90%', // Increased from 80% to 90%
+    minHeight: 400, // Add minimum height
   },
   modalTitle: {
     fontSize: 24,
@@ -228,8 +245,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  scrollView: {
-    flex: 1,
+  scrollViewContent: {
+    flexGrow: 1,
     marginBottom: 20,
   },
   fieldContainer: {
@@ -239,6 +256,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 10,
+    marginTop: 10, // Add some top margin
   },
   button: {
     flex: 1,

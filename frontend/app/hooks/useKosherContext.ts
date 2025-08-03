@@ -22,6 +22,12 @@ const useKosherContext = () => {
         return !kosherError; // valid when no error
     }
 
+    const clearKosher = () => {
+        setKosher(undefined);
+        setKosherError(true); // Reset to initial error state
+        setShowKosherDropDown(false);
+    }
+
     return {
         kosher,
         kosherError, // boolean
@@ -31,7 +37,8 @@ const useKosherContext = () => {
         setShowKosherDropDown,
         handleDropdownOptionSelection,
         kosherDropDownOptionsArray,
-        isKosherValid
+        isKosherValid,
+        clearKosher
     }
 }
 

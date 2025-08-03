@@ -6,6 +6,7 @@ import { EventSummary } from "@/types/events";
 
 const API_URL = Config.API_URL;
 const PUBLISH_EVENT_URL = Config.ENDPOINTS.EVENTS.CREATE;
+const FETCH_ALL_PUBLISHED_EVENTS_URL = Config.ENDPOINTS.EVENTS.FETCH_ALL_PUBLISHED;
 // url: POST api/events
 
 async function publishEvent(eventFormData: any){
@@ -39,4 +40,34 @@ async function publishEvent(eventFormData: any){
     }
 }
 
-export { publishEvent };
+
+
+async function fetchAllPublishedEvents(){
+
+    let url = `${API_URL}${FETCH_ALL_PUBLISHED_EVENTS_URL}`;
+
+    try{
+
+         let response = await apiRequest(HttpMethod.GET, url);
+         if(response.data.success === true){
+            const eventsArray: EventSummary[] = response.data.data.events;
+            return {
+                success: true,
+                events: eventsArray
+            };
+         }else{
+            return {
+                success: false,
+                error: response.data.message
+            };
+         }
+    }catch(error){
+        return {
+            success: false,
+            error: error
+        };
+    }
+}
+
+
+export { publishEvent, fetchAllPublishedEvents };

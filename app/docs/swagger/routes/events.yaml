@@ -159,13 +159,16 @@
                 message:
                   type: string
                   example: "Published events fetched successfully"
-                count:
-                  type: number
-                  example: 2
                 data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/HostPublishedEventSummary'
+                  type: object
+                  properties:
+                    events:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/CompleteEventDetail'
+                    count:
+                      type: number
+                      example: 2
       401:
         description: Unauthorized - Invalid or missing token
       403:

@@ -19,6 +19,12 @@ const useVeganContext = () => {
         return !veganError; // valid when no error
     }
 
+    const clearVegan = () => {
+        setVegan(undefined);
+        setVeganError(true); // Reset to initial error state
+        setShowVeganDropDown(false);
+    }
+
     return {
         vegan,
         veganError, // boolean
@@ -28,7 +34,8 @@ const useVeganContext = () => {
         setShowVeganDropDown,
         handleDropdownOptionSelection,
         veganDropDownOptionsArray,
-        isVeganValid
+        isVeganValid,
+        clearVegan
     }
 }
 

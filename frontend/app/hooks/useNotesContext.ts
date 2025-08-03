@@ -18,11 +18,17 @@ const useNotesContext = ()=>{
        return notesError === '';
     }
 
+    const clearNotes = () => {
+        setNotes('');
+        setNotesError('');
+    }
+
     return {
         notes,
         notesError,
         handleNoteChange,
-        isValidNotes
+        isValidNotes,
+        clearNotes
     }
 }
 

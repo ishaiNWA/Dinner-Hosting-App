@@ -76,6 +76,14 @@ const useAddressContext = () => {
         return address !== '' && addressError === '' && selectedAddressSuggestion === address;
     }
 
+    const clearAddress = () => {
+        setAddress('');
+        setAddressError(FIELD_INPUT_ERROR_MESSAGES.address);
+        setShowAddressSuggestions(false);
+        setAddressSuggestions([]);
+        setSelectedAddressSuggestion('');
+    }
+
     return {
         address,
         addressError,
@@ -85,7 +93,8 @@ const useAddressContext = () => {
         selectedAddressSuggestion,
         handleSelectAddressSuggestion,
         handleAddressChange,
-        isAddressValid
+        isAddressValid,
+        clearAddress
     }
 }
 export default useAddressContext;

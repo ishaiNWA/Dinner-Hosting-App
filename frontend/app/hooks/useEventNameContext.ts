@@ -21,7 +21,12 @@ const useEventNameContext = ()=>{
         return (newEventName !== '' && newEventNameError === '');
     }
 
-        return {newEventName, setNewEventName, newEventNameError, setNewEventNameError, handleNewEventNameChange, isEventNameValid};
+    const clearEventName = ()=>{
+        setNewEventName('');
+        setNewEventNameError('');
+    }
+
+    return {newEventName, setNewEventName, newEventNameError, setNewEventNameError, handleNewEventNameChange, isEventNameValid, clearEventName};
 }
 
 export default useEventNameContext;

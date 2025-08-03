@@ -41,7 +41,13 @@ const useDateContext = (existingEventDates: string[])=>{
         return (newEventDate !== INVALID_DATE_PLACEHOLDER && newEventDateError === '');
       }
 
-      return {newEventDate, setNewEventDate, newEventDateError, setNewEventDateError, showMobileDatePicker, setShowMobileDatePicker, handleNewEventDateChange, isDateValid};
+      const clearDate = ()=>{
+        setNewEventDate(INVALID_DATE_PLACEHOLDER);
+        setNewEventDateError(FIELD_INPUT_ERROR_MESSAGES.newEventDate);
+        setShowMobileDatePicker(false);
+      }
+
+      return {newEventDate, setNewEventDate, newEventDateError, setNewEventDateError, showMobileDatePicker, setShowMobileDatePicker, handleNewEventDateChange, isDateValid, clearDate};
 }
 
 export default useDateContext;

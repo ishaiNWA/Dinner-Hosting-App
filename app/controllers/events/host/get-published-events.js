@@ -1,16 +1,7 @@
 const { ErrorResponse } = require("../../../common/errors");
 const logger = require("../../../utils/logger");
-const dbService = require("../../../services/db-service")
-
-
-function createEventSummaryForHost(event){
-    return {
-        id: event._id,
-        date: event.timing.eventDate,
-        status: event.status.current,
-        participantCount: event.bookedParticipants.length,
-    }
-}
+const dbService = require("../../../services/db-service");
+const { formatEventForResponse } = require("../../../utils/response-formatters");
 
 async function getPublishedEvents(req, res, next){
 
@@ -18,20 +9,21 @@ async function getPublishedEvents(req, res, next){
 
         const events = await dbService.findMultipleEvents(req.eventFilterObject);
 
-        const eventSummaries = events.map(event => createEventSummaryForHost(event));
+        const eventObjectsArray = events.map(event => formatEventForResponse(event));
 
         res.status(200).json({
             success: true,
             message: "Published events fetched successfully",
-            data: eventSummaries,
-            count: eventSummaries.length,
+            data:{
+                events: eventObjectsArray,
+                count: eventObjectsArray.length,
+            }
         });
     }catch(error){
         logger.error(`Error fetching published events: ${error}`);
         return next(new ErrorResponse(500, "Error fetching published events"));
     }
 }
-
 
 module.exports = {
     getPublishedEvents,

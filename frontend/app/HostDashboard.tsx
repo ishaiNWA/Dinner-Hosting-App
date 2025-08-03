@@ -1,46 +1,14 @@
 import { useAuthContext } from '@/contexts/AuthContext';
 import { router } from 'expo-router';
-import { use, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
+import { use, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator} from 'react-native';
 
 import PublishEventModal from '@/components/modals/PublishEventModal';
-import { publishEvent } from '@/services/events';
+import { fetchAllPublishedEvents, publishEvent } from '@/services/events';
 import { EventSummary } from '@/types/events';
 import { formatEventDate } from '@/services/utils';
 
-
-const mockEventsData = [
-  {
-    _id: "507f1f77bcf86cd799439011",
-    eventName: "Team Building Workshop",
-    date: "2025-08-15",
-    participants: 12
-  },
-  {
-    _id: "507f1f77bcf86cd799439012",
-    eventName: "Product Launch Presentation",
-    date: "2025-09-03",
-    participants: 45
-  },
-  {
-    _id: "507f1f77bcf86cd799439013",
-    eventName: "Annual Company Retreat",
-    date: "2025-10-20",
-    participants: 87
-  },
-  {
-    _id: "507f1f77bcf86cd799439014",
-    eventName: "Client Strategy Meeting",
-    date: "2025-08-28",
-    participants: 8
-  },
-  {
-    _id: "507f1f77bcf86cd799439015",
-    eventName: "Holiday Party Planning",
-    date: "2025-11-12",
-    participants: 23
-  }
-];
+const INITIAL_WAIT_TIME = 1000;
 
 
 
@@ -49,7 +17,49 @@ export default function HostDashboard() {
    const [events, setEvents] = useState<EventSummary[]>([]);
    const {userName , logoutCoordinator} = useAuthContext();
    const [isPublishEventModalVisible, setIsPublishEventModalVisible] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
+  const INITIAL_WAIT_TIME = 1000; // 1 second
+
+  useEffect(() => {
+    const initEvents = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const response = await fetchAllPublishedEvents();
+        
+        if (response.success && response.events) {
+          setEvents(response.events);
+          setIsLoading(false);
+        } else {
+          throw new Error('Failed to fetch events');
+        }
+      } catch (err) {
+        console.error('Error fetching events:', err);
+        
+        if (retryCount < MAX_RETRIES) {
+          // Exponential backoff retry
+          const backoffTime = INITIAL_WAIT_TIME * Math.pow(2, retryCount);
+          setRetryCount(prev => prev + 1);
+          
+          setTimeout(() => {
+            initEvents();
+          }, backoffTime);
+        } else {
+          // Max retries reached - show error
+          setError('Failed to load events. Please try again later.');
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initEvents();
+  }, [retryCount]);
+
+
 
    const selectEvent = (eventId: string)=>{
     console.log('selectEvent', eventId);
@@ -115,19 +125,47 @@ export default function HostDashboard() {
 
       <Text style={styles.title}>welcome {userName}</Text>
 
-        {/* Published Events */}
-      <View style={styles.eventsContainer}>
-         <Text style={styles.eventsContainerTitle}>published events</Text>
-         <View style={styles.eventsHeaderTopBar}>
-          <Text style={styles.eventsHeaderTopBarTitle}>event name</Text>
-          <Text style={styles.eventsHeaderTopBarTitle}>date</Text>
-          <Text style={styles.eventsHeaderTopBarTitle}>participants</Text>
-         </View>
-         <FlatList data={events} 
-         renderItem={({item})=>renderEvent(item)}
-         keyExtractor={(item)=>item._id}
-         />
-      </View>
+      {/* Loading State */}
+      {isLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007bff" />
+          <Text style={styles.loadingText}>
+            {retryCount > 0 ? `Retrying... (${retryCount}/${MAX_RETRIES})` : 'Loading events...'}
+          </Text>
+        </View>
+      )}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton} 
+            onPress={() => {
+              setRetryCount(0);
+              setError(null);
+            }}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Published Events */}
+      {!isLoading && !error && (
+        <View style={styles.eventsContainer}>
+           <Text style={styles.eventsContainerTitle}>published events</Text>
+           <View style={styles.eventsHeaderTopBar}>
+            <Text style={styles.eventsHeaderTopBarTitle}>event name</Text>
+            <Text style={styles.eventsHeaderTopBarTitle}>date</Text>
+            <Text style={styles.eventsHeaderTopBarTitle}>participants</Text>
+           </View>
+           <FlatList data={events} 
+           renderItem={({item})=>renderEvent(item)}
+           keyExtractor={(item)=>item._id}
+           />
+        </View>
+      )}
 
       {/* Publish Event Modal */}
       <PublishEventModal
@@ -238,5 +276,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 8,
     marginBottom: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  retryButton: {
+    backgroundColor: '#FF3B30',
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 }); 

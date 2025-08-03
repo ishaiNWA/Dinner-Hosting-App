@@ -85,6 +85,7 @@ export const Config = {
     EVENTS: {
       BASE: '/events',
       CREATE: '/api/events',
+      FETCH_ALL_PUBLISHED: '/api/events/published',
       UPDATE: (id: string) => `/events/${id}`,
       DELETE: (id: string) => `/events/${id}`,
       GET_BY_ID: (id: string) => `/events/${id}`,
