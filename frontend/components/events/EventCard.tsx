@@ -1,1 +1,0 @@
-// EventCard Component - Display event information in card format 

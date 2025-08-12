@@ -5,8 +5,10 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator} 
 
 import PublishEventModal from '@/components/modals/PublishEventModal';
 import { fetchAllPublishedEvents, publishEvent } from '@/services/events';
-import { EventSummary } from '@/types/events';
+import { EventSummary, EventDataItem } from '@/types/events';
 import { formatEventDate } from '@/services/utils';
+import EventInteraction from '@/components/events/EventInteraction';
+import { GuestsDetails } from '@/types/guest';
 
 const INITIAL_WAIT_TIME = 1000;
 
@@ -14,12 +16,17 @@ const INITIAL_WAIT_TIME = 1000;
 
 export default function HostDashboard() {
 
-   const [events, setEvents] = useState<EventSummary[]>([]);
-   const {userName , logoutCoordinator} = useAuthContext();
-   const [isPublishEventModalVisible, setIsPublishEventModalVisible] = useState(false);
+
+  // State variables
+  const [eventsDataItems, setEventsDataItems] = useState<Array<EventDataItem>>([]);
+  const {userName , logoutCoordinator} = useAuthContext();
+  const [isPublishEventModalVisible, setIsPublishEventModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const[isEventInteractionModalVisible, setIsEventInteractionModalVisible] = useState(false);
+  const[selectedEventDataItem, setSelectedEventDataItem] = useState<EventDataItem | null>(null);
+
   const MAX_RETRIES = 3;
   const INITIAL_WAIT_TIME = 1000; // 1 second
 
@@ -32,7 +39,11 @@ export default function HostDashboard() {
         const response = await fetchAllPublishedEvents();
         
         if (response.success && response.events) {
-          setEvents(response.events);
+          const eventsWithDetails = response.events.map((event: EventSummary) => ({
+            eventSummary: event,
+            isGuestDetailsCached: false,
+          }));
+          setEventsDataItems(eventsWithDetails);
           setIsLoading(false);
         } else {
           throw new Error('Failed to fetch events');
@@ -61,17 +72,33 @@ export default function HostDashboard() {
 
 
 
-   const selectEvent = (eventId: string)=>{
-    console.log('selectEvent', eventId);
+   const handleSelectEvent = (eventDataItem: EventDataItem)=>{
+    console.log('selectEvent', eventDataItem.eventSummary._id);
+    setSelectedEventDataItem(eventDataItem);
+    setIsEventInteractionModalVisible(true);
    }
 
-   const renderEvent = (event: EventSummary)=>{
+   const handleBookParticipant = (eventId: string )=>{
+      
+    let newEventDataItems = eventsDataItems.map((item)=>{
+      if(item.eventSummary._id === eventId){
+        return{
+          ...item,
+          isGuestDetailsCached: false
+        }
+      }
+      return item;
+    })
+    setEventsDataItems(newEventDataItems);
+   }
+
+   const renderEvent = (eventDataItem: EventDataItem)=>{
     return (
-      <TouchableOpacity style={styles.eventEntryButton} onPress={()=>selectEvent(event._id)}>
+      <TouchableOpacity style={styles.eventEntryButton} onPress={()=>handleSelectEvent(eventDataItem)}>
       <View style={styles.eventEntry}>
-        <Text style={styles.eventName}>{event.eventName}</Text>
-        <Text style={styles.eventDate}>{formatEventDate(event.timing.eventDate)}</Text>
-        <Text style={styles.eventParticipants}>{event.participantCount}</Text>
+        <Text style={styles.eventName}>{eventDataItem.eventSummary.eventName}</Text>
+        <Text style={styles.eventDate}>{formatEventDate(eventDataItem.eventSummary.timing.eventDate)}</Text>
+        <Text style={styles.eventParticipants}>{eventDataItem.eventSummary.participantCount}</Text>
       </View>
       </TouchableOpacity>
     )
@@ -93,7 +120,12 @@ export default function HostDashboard() {
     if(response.success && response.eventSummary){
       let eventSummery = response.eventSummary;
 
-      setEvents([...events, eventSummery]);
+      let newEventDataItem: EventDataItem = {
+        eventSummary: eventSummery,
+        isGuestDetailsCached: false
+      }
+      let newEventsDataItems = [...eventsDataItems, newEventDataItem];
+      setEventsDataItems(newEventsDataItems);
       return {
         success: true,
         message: 'Event published successfully'
@@ -151,7 +183,7 @@ export default function HostDashboard() {
         </View>
       )}
 
-      {/* Published Events */}
+      {/* Published Events list */}
       {!isLoading && !error && (
         <View style={styles.eventsContainer}>
            <Text style={styles.eventsContainerTitle}>published events</Text>
@@ -160,9 +192,9 @@ export default function HostDashboard() {
             <Text style={styles.eventsHeaderTopBarTitle}>date</Text>
             <Text style={styles.eventsHeaderTopBarTitle}>participants</Text>
            </View>
-           <FlatList data={events} 
+           <FlatList data={eventsDataItems} 
            renderItem={({item})=>renderEvent(item)}
-           keyExtractor={(item)=>item._id}
+           keyExtractor={(item)=>item.eventSummary._id}
            />
         </View>
       )}
@@ -172,8 +204,21 @@ export default function HostDashboard() {
         visible={isPublishEventModalVisible}
         onClose={handleClosePublishEventModal}
         onSubmit={handlePublishEvent}
-        existingEventDates={events.map((event)=>event.timing.eventDate)} // Use correct path from EventSummary interface
+        existingEventDates={eventsDataItems.map((item)=>item.eventSummary.timing.eventDate)} // Use correct path from EventSummary interface
       />
+
+      {/* Event Interaction Modal */}
+      {selectedEventDataItem && (
+        <EventInteraction
+          visible={isEventInteractionModalVisible}
+          eventdata={selectedEventDataItem}
+          onBookParticipant={()=>handleBookParticipant(selectedEventDataItem.eventSummary._id)}
+          onClose={() => {
+            setIsEventInteractionModalVisible(false);
+            setSelectedEventDataItem(null);
+          }}
+        />
+      )}
 
     </View>
   );

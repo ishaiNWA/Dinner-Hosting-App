@@ -22,3 +22,8 @@ export interface EventSummary {
     };
   }
 
+  export interface EventDataItem {
+    eventSummary: EventSummary;
+    isGuestDetailsCached: boolean;  
+  }
+

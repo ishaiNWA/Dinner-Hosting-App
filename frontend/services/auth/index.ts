@@ -1,7 +1,7 @@
 // Main authentication entry point - orchestrates between web and mobile auth
 
 import { Config, HttpMethod } from "@/constants/Config";
-import { Platform, Alert } from "react-native";
+import { Platform } from "react-native";
 import { apiRequest } from "../api";
 import { handleWebGoogleLogin } from './webAuth';
 import { handleMobileGoogleLogin } from './mobileAuth';

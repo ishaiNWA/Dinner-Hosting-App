@@ -88,7 +88,7 @@ export const Config = {
       FETCH_ALL_PUBLISHED: '/api/events/published',
       UPDATE: (id: string) => `/events/${id}`,
       DELETE: (id: string) => `/events/${id}`,
-      GET_BY_ID: (id: string) => `/events/${id}`,
+      GET_BY_ID: (id: string) => `/api/events/published/${id}`,
       SEARCH: '/events/search',
     },
     
