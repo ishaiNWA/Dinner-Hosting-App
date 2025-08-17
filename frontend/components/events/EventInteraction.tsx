@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react
 import { EventDataItem, EventSummary } from "@/types/events";
 import EventDetailsTab from './EventDetailsTab';
 import EventParticipantsTab from './EventParticipantsTab';
+import BookParticipantModal from './BookParticipantModal';
 import { getEventParticipants } from '@/services/events';
 import { GuestsDetails } from '@/types/guest';
 
@@ -151,26 +152,10 @@ function EventInteraction({ visible, eventdata, onBookParticipant, onClose }: Ev
             </View>
 
             {/* Book Participant Modal */}
-            <Modal
+            <BookParticipantModal
                 visible={isBookParticipantModalVisible}
-                onRequestClose={() => setIsBookParticipantModalVisible(false)}
-                animationType="slide"
-                transparent={true}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.bookParticipantModalContent}>
-                        <View style={styles.header}>
-                            <Text style={styles.modalTitle}>Book Participant</Text>
-                            <TouchableOpacity onPress={() => setIsBookParticipantModalVisible(false)} style={styles.closeButton}>
-                                <Text style={styles.closeButtonText}>✕</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.bookParticipantContent}>
-                            <Text style={styles.bookParticipantText}>Book Participant functionality coming soon...</Text>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+                onClose={handleCloseBookParticipantModal}
+            />
         </Modal>
     )
 }
@@ -276,25 +261,6 @@ const styles = StyleSheet.create({
     },
     closeButtonStyle: {
         backgroundColor: '#6c757d', // Gray for close action
-    },
-    bookParticipantModalContent: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 20,
-        width: '100%',
-        maxWidth: 400,
-        maxHeight: '80%',
-    },
-    bookParticipantContent: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    bookParticipantText: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
     },
 });
 

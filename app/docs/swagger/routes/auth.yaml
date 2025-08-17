@@ -176,8 +176,27 @@
   post:
     tags: [Authentication]
     summary: Complete user registration
+    description: |
+      Completes user registration by adding role-specific information. 
+      Returns updated authentication token based on platform:
+      
+      **Web Platform:**
+      - Sets new HTTP-only JWT cookie with updated user role
+      - Cookie automatically replaces previous authentication cookie
+      
+      **Mobile Platform:**
+      - Returns new JWT token in response body
+      - Client should store token in secure storage
     security:
       - cookieAuth: []
+    parameters:
+      - in: query
+        name: platform
+        schema:
+          type: string
+          enum: [web, mobile]
+        description: Platform type to determine token response format
+        example: web
     requestBody:
       required: true
       content:
@@ -187,14 +206,19 @@
     responses:
       200:
         description: Registration completed successfully
+        headers:
+          Set-Cookie:
+            schema:
+              type: string
+              example: "jwt=eyJhbGciOiJIUzI1NiIs...; HttpOnly; Secure; SameSite=none; Max-Age=86400"
+            description: |
+              JWT token cookie (Web platform only).
+              Contains updated user information including the newly assigned role.
         content:
           application/json:
             schema:
               type: object
               properties:
-                successStatus:
-                  type: boolean
-                  example: true
                 message:
                   type: string
                   example: "User completed registration successfully"
@@ -226,10 +250,34 @@
                     address:
                       type: string
                       example: "456 Guest Avenue, Host City"
+                token:
+                  type: string
+                  description: |
+                    JWT token with updated user role (Mobile platform only).
+                    Client should store this token in secure storage.
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
       400:
-        description: Invalid registration data
+        description: Invalid registration data or user already completed registration
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "User already completed profile"
+                    status:
+                      type: integer
+                      example: 400
       401:
         description: Unauthorized - Invalid or missing token
+      404:
+        description: User not found
+      500:
+        description: Internal server error
 
 /api/auth/logout:
   post:

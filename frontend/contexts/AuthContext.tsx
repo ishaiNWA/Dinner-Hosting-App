@@ -112,8 +112,8 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
                         const userData = await getUserProfile();
                         console.log('🔍 GET USER PROFILE RESPONSE:', userData);
                         
-                        if (userData.error && userData.status === 401) {
-                            console.log('❌ TOKEN INVALID - CLEARING AUTH STATE');
+                        if (userData.error && userData.status === 401 || userData.status === 404) {
+                           console.log('❌ TOKEN INVALID - CLEARING AUTH STATE', userData.status);
                             await clearAuthState();
                         } else if (!userData.error) {
                             console.log('✅ TOKEN VALID - KEEPING RESTORED STATE');
@@ -161,6 +161,9 @@ const AuthProvider = ({children}: {children: React.ReactNode}) =>{
                 console.log(`complete registration: LOCAL STORAGE IS LOGGED IN: ${localStorage.getItem('isLoggedIn')}`);
                 localStorage.setItem('isRegistrationComplete', 'true');
                 localStorage.setItem('userRole', role);
+              }else{
+                await SecureStore.setItemAsync(Config.JWT_STORAGE_KEY, response.token);
+                console.log(`MOBLIE complete registration: SECURE STORE IS LOGGED IN: ${await SecureStore.getItemAsync(Config.JWT_STORAGE_KEY)}`);
               }
               return {success: true};
         }

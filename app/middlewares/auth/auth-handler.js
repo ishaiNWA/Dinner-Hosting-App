@@ -55,7 +55,7 @@ const googleAuthHandler = async (req, res, next) => {
       logger.info(`Cookie options: ${JSON.stringify(cookieOptions)}`);
       logger.info(`Cookie set successfully`);
       
-      const successRedirect = buildWebSuccessRedirect(user, user.isRegistrationComplete); 
+     // const successRedirect = buildWebSuccessRedirect(user, user.isRegistrationComplete); 
       const origin = req.query.origin || env.WEB_PLATFORM_ORIGIN;
       const renderedTemplate = webOauthSuccessTemplateCompiled({
         USER_JSON: JSON.stringify(user),

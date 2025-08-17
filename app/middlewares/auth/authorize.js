@@ -9,6 +9,7 @@ const  {ErrorResponse}  = require("../../common/errors");
 const authorize = (roles)=>{
     return (req, res, next)=>{
         if(!roles.includes(req.decodedToken.role)){
+            console.log(`DECODED TOKEN IS: ${JSON.stringify(req.decodedToken, null, 2)}`);
             return next(new ErrorResponse(403, "unauthorized role"));
         }
         next();
